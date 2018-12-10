@@ -1,3 +1,0 @@
-#!/bin/bash
-
-python -tt -m unittest discover -v
