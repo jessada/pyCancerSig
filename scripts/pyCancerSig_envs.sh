@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PYCANCERSIG_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+
 die () {
     echo >&2 "[exception] $@"
     echo >&2 "$usage"
@@ -10,7 +12,6 @@ msg_to_out ()
 {
     local message="$1"
     echo "$message" 1>&2
-    write_log "$message"
 }
 
 info_msg ()
@@ -31,8 +32,6 @@ debug_msg ()
     if [ "$dev_mode" == "On" ]
     then
         msg_to_out "$formated_msg"
-    else
-        write_log "$formated_msg"
     fi
 }
 
