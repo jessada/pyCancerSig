@@ -93,6 +93,13 @@ if(msi_out_dir) summary['MSI output dir'] = msi_out_dir
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
 
+/*
+ * STEP 2 - feature extraction
+ */
+
+/*
+ * STEP 2.1.1 - scan normal-tumor bam for MSI loci
+ */
 process msisensor_msi {
     if (params.save_msi) {
         publishDir path: msi_out_dir,
@@ -100,7 +107,7 @@ process msisensor_msi {
     }
 
     input:
-    set pair_id, bam_pairs from ch_bam_pairs
+    set pair_id, bam_pair from ch_bam_pairs
 
     output:
     set pair_id, file("${pair_id}"), file("${pair_id}_somatic"), file("${pair_id}_germline"), file("${pair_id}_dis") into msi_files
@@ -109,8 +116,32 @@ process msisensor_msi {
     """
     $baseDir/scripts/msi/msisensor_msi.sh \
      -d $params.microsates                \
-     -n ${bam_pairs[0]}                   \
-     -t ${bam_pairs[1]}                   \
-     -o ${pair_id}
+     -n ${bam_pair[0]}                    \
+     -t ${bam_pair[1]}                    \
+     -o $pair_id
+    """
+}
+/*
+ * STEP 2.1.2 - extract MSI feature
+ */
+process extract_msi_feature {
+    if (params.save_msi) {
+        publishDir path: msi_out_dir,
+                   mode: 'copy'
+    }
+
+    input:
+    set pair_id, file(msi_score), file(msi_somatic), file(msi_germline), file(msi_dis) from msi_files
+
+    output:
+    set pair_id, file("${pair_id}.msi-features.txt") into msi_feature
+
+    script:
+    """
+    $baseDir/scripts/msi/extract_msi_features.py \
+     --raw_msisensor_report $msi_score           \
+     --raw_msisensor_somatic $msi_somatic        \
+     --sample_id $pair_id                        \
+     --output_file ${pair_id}.msi-features.txt
     """
 }
