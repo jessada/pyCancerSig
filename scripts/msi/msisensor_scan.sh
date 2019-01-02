@@ -4,10 +4,10 @@ set -e
 set -u
 set -o pipefail
 
-if [[ -z ${PYCANCERSIG_DIR:-} ]]
+if [[ -z ${PYCANCERSIG_SCRIPTS_DIR:-} ]]
 then
     script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-    source "$script_dir/pyCancerSig_envs.sh"
+    source "$script_dir/../pyCancerSig_envs.sh"
 fi
 
 script_name=$(basename $0)
@@ -48,7 +48,7 @@ done
 
 time_stamp=$( date )
 
-cd $PYCANCERSIG_DIR
+cd $PYCANCERSIG_SCRIPTS_DIR
 revision_no=`git rev-list HEAD | wc -l`
 revision_code=`git rev-parse HEAD`
 cd - > /dev/null

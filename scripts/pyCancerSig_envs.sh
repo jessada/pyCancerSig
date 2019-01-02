@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PYCANCERSIG_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+export PYCANCERSIG_SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 die () {
     echo >&2 "[exception] $@"

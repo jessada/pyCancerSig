@@ -1,4 +1,3 @@
-#from __future__ import print_function
 from os.path import basename
 import argparse
 import sys
@@ -162,44 +161,3 @@ class MSIFeaturesExtractByBaseComposition():
                 self.__extract_zeros_features(sample_id, output_file)
             else:
                 self.__extract_features(raw_msi_somatic, sample_id, output_file)
-#
-#def __get_sample_id(msi_report):
-#    return basename(msi_report).replace("msi_out_", "")
-#
-#def __get_msi_somatic(msi_report):
-#    return msi_report + "_somatic"
-#
-#if __name__ == '__main__':
-#    parser = argparse.ArgumentParser()
-#
-#    parser.add_argument('--raw_msi_dir',
-#                        '-i',
-#                        metavar="DIR",
-#                        dest='raw_msi_dir',
-#                        required=True,
-#                        )
-#    parser.add_argument('--output_dir',
-#                        '-o',
-#                        metavar="FILE",
-#                        required=True,
-#                        )
-#    args = parser.parse_args()
-#    print("", file=sys.stderr)
-#    print(">> Input raw MSI directory: " + args.raw_msi_dir, file=sys.stderr)
-#    print(">> Output directory: " + args.output_dir, file=sys.stderr)
-#    print("", file=sys.stderr)
-#
-#    fe = MSIFeaturesExtractByBaseComposition()
-#
-#    for raw_msi_report in glob.glob(args.raw_msi_dir+"/msi_out_TCGA-??-????"):
-#        raw_msi_somatic = __get_msi_somatic(raw_msi_report)
-#        sample_id = __get_sample_id(raw_msi_report)
-#        output_file = join_path(args.output_dir, sample_id+"-msi_features.txt")
-#        msg = ">> Extracting MSI features from samples: " + sample_id
-#        msg += " to " + output_file
-#        print(msg, file=sys.stderr)
-#        fe.extract_features(raw_msi_report,
-#                            raw_msi_somatic,
-#                            sample_id,
-#                            output_file,
-#                            )

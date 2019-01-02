@@ -9,8 +9,6 @@ setup(
               'cancersig.features',
               ],
     package=['pyCancerSig'],
-    scripts=['bin/extract_msi_features',
-             ],
     url='http://pypi.python.org/pypi/pyCancerSig/',
     license='LICENSE.txt',
     description='Python packages for deciphering cancer signature processes',

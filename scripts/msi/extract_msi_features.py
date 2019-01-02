@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 from cancersig.features.msi import MSIFeaturesExtractByBaseComposition
 
