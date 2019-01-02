@@ -41,6 +41,15 @@ params.name = false
 //params.project = false
 params.save_msi = false
 params.out_dir = './results'
+if (params.save_msi){
+    msi_out_dir = file( "${params.out_dir}/msi/" )
+    if( !msi_out_dir.exists() ) {
+      msi_out_dir.mkdirs()
+    }
+}
+else {
+    msi_out_dir = null
+}
 
 
 // Has the run name been specified by the user?
@@ -51,12 +60,12 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
 }
 
 /*
- * Create a channel for tumor-normal bams
+ * Create a channel for normal-tumor bams
  */
 
 Channel
-    .fromFilePairs("$params.bam_pair_dir/*/*-{normal,tumor}.bam")
-    .ifEmpty { error "Cannot find any normal-tumor paris in ${params.bam}" }  
+    .fromFilePairs("$params.bam_pair")
+    .ifEmpty { error "Cannot find any normal-tumor paris in ${params.bam_pair}" }  
     .set { ch_bam_pairs }
 
 
@@ -76,16 +85,25 @@ summary['Current user']   = "$USER"
 summary['Current path']   = "$PWD"
 if(params.project) summary['UPPMAX Project'] = params.project
 if(params.email) summary['E-mail Address'] = params.email
-summary['Bam-pair dir']   = params.bam_pair_dir
+summary['Bam pair ']      = params.bam_pair
 summary['Output dir']     = params.out_dir
+if(msi_out_dir) summary['MSI output dir'] = msi_out_dir
 
 
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
 
 process msisensor_msi {
+    if (params.save_msi) {
+        publishDir path: msi_out_dir,
+                   mode: 'copy'
+    }
+
     input:
     set pair_id, bam_pairs from ch_bam_pairs
+
+    output:
+    set pair_id, file("${pair_id}"), file("${pair_id}_somatic"), file("${pair_id}_germline"), file("${pair_id}_dis") into msi_files
 
     script:
     """
@@ -93,6 +111,6 @@ process msisensor_msi {
      -d $params.microsates                \
      -n ${bam_pairs[0]}                   \
      -t ${bam_pairs[1]}                   \
-     -o $pair_id
+     -o ${pair_id}
     """
 }
