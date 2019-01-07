@@ -60,23 +60,15 @@ done
 
 time_stamp=$( date )
 
-cd $PYCANCERSIG_SCRIPTS_DIR
-revision_no=`git rev-list HEAD | wc -l`
-revision_code=`git rev-parse HEAD`
-cd - > /dev/null
-
 working_dir=`mktemp -d`
 
-## ****************************************  display configuration  ****************************************
-## display required configuration
+# ****************************************  display configuration  ****************************************
 new_section_txt "S T A R T <$script_name>"
 info_msg
 info_msg "description"
 info_msg "  An encapsulation of 'msisensor msi' for slurm"
 info_msg
 info_msg "version and script configuration"
-display_param "revision no" "$revision_no"
-display_param "revision code" "$revision_code"
 display_param "parameters" "$params"
 display_param "time stamp" "$time_stamp"
 info_msg
