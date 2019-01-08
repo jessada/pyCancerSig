@@ -298,7 +298,7 @@ def main(sample_id,
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("""merge profiles from FindSV and TiTv""")
+    parser = argparse.ArgumentParser("""join features from FindSV, MSI and TiTv """)
 
     parser.add_argument('--sample_id',
                         dest='sample_id',

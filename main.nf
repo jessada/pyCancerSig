@@ -269,7 +269,7 @@ process join_features {
     set sample_id, file(msi_features), file(sv_features), file(titv_event), file(titv_titv) from all_features
 
     output:
-    file "${sample_id}.join-features.txt" into join_features
+    file "${sample_id}.join-features.txt" into joined_features
 
     script:
     """
@@ -281,6 +281,25 @@ process join_features {
      --output_filename ${sample_id}.join-features.txt
     """
 }
+/*
+ * STEP 3.1 - concat features from all samples into a single file
+ */
+process concat_features {
+    if (params.save_features) {
+        publishDir path: features_out_dir,
+                   mode: 'copy'
+    }
 
-join_features.println()
+    input:
+    file sample_features from joined_features.collect()
 
+    output:
+    file "samples-features.txt" into concatted_features
+
+    script:
+    """
+    $baseDir/scripts/features/concat_features.py \
+     --features_files '$sample_features'         \
+     --output_filename samples-features.txt
+    """
+}
