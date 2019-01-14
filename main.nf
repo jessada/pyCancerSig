@@ -30,7 +30,10 @@ def usage_message() {
     TiTv
       --save_titv                   Save the TiTv files - not done by default
     features
-      --save_features               Save the join features files - not done by default
+      --save_features               Save the joined features files - not done by default
+    model
+      --min_signatures              Minimum number of signatures in model construction
+      --max_signatures              Maximum number of signatures in model construction
     Other options:
       --freq_cutoff                 Cut-off criteria for variants to be included in the profile
       --out_dir                     The output directory where the results will be saved
@@ -49,6 +52,8 @@ params.name = false
 params.save_msi = false
 params.save_titv = false
 params.save_features = false
+params.min_signatures = 2
+params.max_signatures = 3
 params.freq_cutoff = 0.01
 params.out_dir = './results'
 if (params.save_msi){
@@ -78,7 +83,14 @@ if (params.save_features){
 else {
     features_out_dir = null
 }
-
+model_out_dir = file( "${params.out_dir}/model/" )
+if( !model_out_dir.exists() ) {
+  model_out_dir.mkdirs()
+}
+deciphered_processes_out_dir = file( "${params.out_dir}/deciphered_processes/" )
+if( !deciphered_processes_out_dir.exists() ) {
+  deciphered_processes_out_dir.mkdirs()
+}
 
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
@@ -116,17 +128,19 @@ log.info "========================================="
 log.info "          Cancer Signature v${params.version}"
 log.info "========================================="
 def summary = [:]
-summary['Run Name']                  = custom_runName ?: workflow.runName
-summary['Save MSI']                  = params.save_msi ? 'Yes' : 'No'
-summary['Save Ti/Tv']                = params.save_titv ? 'Yes' : 'No'
-summary['Save Features']             = params.save_features ? 'Yes' : 'No'
-summary['Variant frequency cut-off'] = params.freq_cutoff
-summary['Working dir']               = workflow.workDir
-summary['Script dir']                = workflow.projectDir
-summary['Config Profile']            = workflow.profile
-summary['Current home']              = "$HOME"
-summary['Current user']              = "$USER"
-summary['Current path']              = "$PWD"
+summary['Run Name']                     = custom_runName ?: workflow.runName
+summary['Save MSI']                     = params.save_msi ? 'Yes' : 'No'
+summary['Save Ti/Tv']                   = params.save_titv ? 'Yes' : 'No'
+summary['Save Features']                = params.save_features ? 'Yes' : 'No'
+summary['Variant frequency cut-off']    = params.freq_cutoff
+summary['Minimum number of signatures'] = params.min_signatures
+summary['Maximum number of signatures'] = params.max_signatures
+summary['Working dir']                  = workflow.workDir
+summary['Script dir']                   = workflow.projectDir
+summary['Config Profile']               = workflow.profile
+summary['Current home']                 = "$HOME"
+summary['Current user']                 = "$USER"
+summary['Current path']                 = "$PWD"
 if(params.project) summary['UPPMAX Project'] = params.project
 if(params.email) summary['E-mail Address'] = params.email
 summary['Bam pair ']                 = params.bam_pair
@@ -137,9 +151,11 @@ summary['Output dir']                = params.out_dir
 if(msi_out_dir) summary['MSI output dir'] = msi_out_dir
 if(titv_out_dir) summary['Ti/Tv output dir'] = titv_out_dir
 if(features_out_dir) summary['Ti/Tv output dir'] = features_out_dir
+if(model_out_dir) summary['Model output dir'] = model_out_dir
+if(deciphered_processes_out_dir) summary['Deciphered processes output dir'] = deciphered_processes_out_dir
 
 
-log.info summary.collect { k,v -> "${k.padRight(26)}: $v" }.join("\n")
+log.info summary.collect { k,v -> "${k.padRight(35)}: $v" }.join("\n")
 log.info "========================================="
 
 /*
@@ -243,11 +259,10 @@ process extract_sv_features {
     output:
     set sample_id, file("${sample_id}.sv-features.txt") into sv_features
 
-
     script:
     """
     $baseDir/scripts/sv/extract_sv_features.py \
-     --vcf ${somatic_sv_vcf}                     \
+     --vcf ${somatic_sv_vcf}                   \
      --frequency $params.freq_cutoff           \
      --out ${sample_id}.sv-features.txt
     """
@@ -258,7 +273,6 @@ all_features = msi_features.join(sv_features, by:0).join(titv_files, by: 0)
 /*
  * STEP 3 - merge features
  */
-
 /*
  * STEP 3.1 - join features
  */
@@ -276,13 +290,13 @@ process join_features {
     $baseDir/scripts/features/parse_n_join_features.py \
      --sample_id $sample_id                            \
      --msi_features $msi_features                      \
-     --titv_features $titv_titv                    \
+     --titv_features $titv_titv                        \
      --sv_features $sv_features                        \
      --output_filename ${sample_id}.join-features.txt
     """
 }
 /*
- * STEP 3.1 - concat features from all samples into a single file
+ * STEP 3.2 - concat features from all samples into a single file
  */
 process concat_features {
     if (params.save_features) {
@@ -298,8 +312,78 @@ process concat_features {
 
     script:
     """
-    $baseDir/scripts/features/concat_features.py \
-     --features_files '$sample_features'         \
+    $baseDir/scripts/features/concat_features.py  \
+     --features_files '$sample_features'          \
      --output_filename samples-features.txt
+    """
+}
+/*
+ * STEP 4 - train the model in an unsupervised fashion
+ */
+process train_model {
+    publishDir path: model_out_dir,
+               mode: 'copy'
+
+    input:
+    file features_file from concatted_features
+
+    output:
+    set file(features_file), file("cancer_signature_model_*_processes.txt") into model_input_n_params
+    file "cancer_signature_model_*_exposures.txt"
+    file "cancer_signature_model_*_processes.pdf"
+    file "cancer_signature_model.stat" into model_stat
+
+    script:
+    """
+    $baseDir/scripts/model/cansig.py         \
+     --mutation_profiles $features_file      \
+     --min_signatures $params.min_signatures \
+     --max_signatures $params.max_signatures \
+     --out_prefix cancer_signature_model
+    """
+}
+/*
+ * STEP 5 - decipher cancer signature components
+ */
+/*
+ * STEP 5.1 - Find model with optimal performance (highest reproducibility and lowest reconstruction error)
+ */
+process find_optimal_model {
+    input:
+    file stat_file from model_stat
+
+    output:
+    stdout best_n_sig
+
+    script:
+    """
+    grep -v "sig" $stat_file             \
+      | awk '{ print \$1,"\t",\$2/\$3 }' \
+      | sort -k2,2n                      \
+      | tail -1                          \
+      | cut -f1
+    """
+}
+/*
+ * STEP 5.2 - Use the trained model to decipher cancer signature process
+ */
+process reconstruct_profiles {
+    publishDir path: deciphered_processes_out_dir,
+               mode: 'copy'
+
+    input:
+    val n_sig from best_n_sig
+    set file(sample_profiles), file("*") from model_input_n_params
+
+    output:
+    file "figure/*"
+    file "weights/*"
+
+    script:
+    """
+    $baseDir/scripts/model/reconsig.py                                          \
+     --mutation_profiles $sample_profiles                                       \
+     --cancer_signature_processes cancer_signature_model_${n_sig.strip()}_processes.txt \
+     --output_root_dir .
     """
 }
