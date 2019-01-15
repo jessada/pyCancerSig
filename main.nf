@@ -24,6 +24,8 @@ def usage_message() {
       --somatic_sv_vcf              Path to input somatic structural variant in vcf format
       --reference                   Reference file used when the bams were aligned. Currently, the workflow assume that all bams were aligned using the same reference
       --project                     SLURM project code
+
+    Optional arguments:
     MSI
       --microsates                  Homopolymer and microsates file required by msisensor
       --save_msi                    Save the MSI files - not done by default
@@ -34,7 +36,7 @@ def usage_message() {
     model
       --min_signatures              Minimum number of signatures in model construction
       --max_signatures              Maximum number of signatures in model construction
-    Other options:
+    Others:
       --freq_cutoff                 Cut-off criteria for variants to be included in the profile
       --out_dir                     The output directory where the results will be saved
     """.stripIndent()
@@ -143,11 +145,11 @@ summary['Current user']                 = "$USER"
 summary['Current path']                 = "$PWD"
 if(params.project) summary['UPPMAX Project'] = params.project
 if(params.email) summary['E-mail Address'] = params.email
-summary['Bam pair ']                 = params.bam_pair
-summary['Somatic SNV vcf ']          = params.somatic_snv_vcf
-summary['Somatic SV vcf ']          = params.somatic_sv_vcf
-summary['Genome reference ']         = params.reference
-summary['Output dir']                = params.out_dir
+summary['Bam pair ']                    = params.bam_pair
+summary['Somatic SNV vcf ']             = params.somatic_snv_vcf
+summary['Somatic SV vcf ']              = params.somatic_sv_vcf
+summary['Genome reference ']            = params.reference
+summary['Output dir']                   = params.out_dir
 if(msi_out_dir) summary['MSI output dir'] = msi_out_dir
 if(titv_out_dir) summary['Ti/Tv output dir'] = titv_out_dir
 if(features_out_dir) summary['Ti/Tv output dir'] = features_out_dir
@@ -159,11 +161,48 @@ log.info summary.collect { k,v -> "${k.padRight(35)}: $v" }.join("\n")
 log.info "========================================="
 
 /*
- * STEP 2 - feature extraction
+ * STEP 0 - preparation
  */
-
 /*
- * STEP 2.1.1 - scan normal-tumor bam for MSI loci
+ * STEP 0.1 - split fasta file by chromosome
+ */
+process split_fasta {
+    output:
+    file "split_fasta" into fasta_by_chromsomes   
+
+    script:
+    """
+    $baseDir/scripts/preparation/split_fasta.sh $params.reference
+    mkdir split_fasta
+    mv *.fa split_fasta 
+    """
+}
+/*
+ * STEP 1 - feature extraction
+ */
+/*
+ * STEP 1.1.1 - search the reference genome of all possible loci of short tamdem repeat
+ */
+process find_STR {
+    if (params.save_msi) {
+        publishDir path: msi_out_dir,
+                   mode: 'copy'
+    }
+    input:
+    file split_fasta from fasta_by_chromsomes
+
+    output:
+    file "microsates.list" into microsates
+
+    script:
+    """
+    $baseDir/scripts/msi/msisensor_scan.sh \
+     -i $split_fasta                       \
+     -o microsates.list
+    """
+}
+/*
+ * STEP 1.1.2 - scan normal-tumor bam for MSI loci
  */
 process msisensor_msi {
     tag "$sample_id"
@@ -174,6 +213,7 @@ process msisensor_msi {
 
     input:
     set sample_id, bam_pair from ch_bam_pairs
+    file (microsates_file) from microsates
 
     output:
     set sample_id, file("${sample_id}"), file("${sample_id}_somatic"), file("${sample_id}_germline"), file("${sample_id}_dis") into msi_files
@@ -181,14 +221,14 @@ process msisensor_msi {
     script:
     """
     $baseDir/scripts/msi/msisensor_msi.sh \
-     -d $params.microsates                \
+     -d $microsates_file                \
      -n ${bam_pair[0]}                    \
      -t ${bam_pair[1]}                    \
      -o $sample_id
     """
 }
 /*
- * STEP 2.1.2 - extract MSI features
+ * STEP 1.1.1 - extract MSI features
  */
 process extract_msi_features {
     tag "$sample_id"
@@ -209,7 +249,7 @@ process extract_msi_features {
     """
 }
 /*
- * STEP 2.2.1 - scan for transition and transversion in somotic SNV vcf
+ * STEP 1.2.1 - scan for transition and transversion in somotic SNV vcf
  */
 process count_titv {
     tag "$sample_id"
@@ -236,19 +276,19 @@ process count_titv {
     """
 }
 /*
- * STEP 2.3.1 - scan bam file for structural variants
+ * STEP 1.3.1 - scan bam file for structural variants
  */
 // Temporary skip due to FindSV dependency
 //process run_FindSV {
 //}
 /*
- * STEP 2.3.2 - perform SV somatic call
+ * STEP 1.3.2 - perform SV somatic call
  */
 // Temporary skip due to FindSV dependency
 //process somatic_sv_call {
 //}
 /*
- * STEP 2.3.3 - extract structural variation features
+ * STEP 1.3.3 - extract structural variation features
  */
 process extract_sv_features {
     tag "$sample_id"
@@ -271,10 +311,10 @@ process extract_sv_features {
 all_features = msi_features.join(sv_features, by:0).join(titv_files, by: 0)
 
 /*
- * STEP 3 - merge features
+ * STEP 2 - merge features
  */
 /*
- * STEP 3.1 - join features
+ * STEP 2.1 - join features
  */
 process join_features {
     tag "$sample_id"
@@ -296,7 +336,7 @@ process join_features {
     """
 }
 /*
- * STEP 3.2 - concat features from all samples into a single file
+ * STEP 2.2 - concat features from all samples into a single file
  */
 process concat_features {
     if (params.save_features) {
@@ -318,7 +358,7 @@ process concat_features {
     """
 }
 /*
- * STEP 4 - train the model in an unsupervised fashion
+ * STEP 3 - train the model in an unsupervised fashion
  */
 process train_model {
     publishDir path: model_out_dir,
@@ -343,10 +383,10 @@ process train_model {
     """
 }
 /*
- * STEP 5 - decipher cancer signature components
+ * STEP 4 - decipher cancer signature components
  */
 /*
- * STEP 5.1 - Find model with optimal performance (highest reproducibility and lowest reconstruction error)
+ * STEP 4.1 - Find model with optimal performance (highest reproducibility and lowest reconstruction error)
  */
 process find_optimal_model {
     input:
@@ -365,7 +405,7 @@ process find_optimal_model {
     """
 }
 /*
- * STEP 5.2 - Use the trained model to decipher cancer signature process
+ * STEP 4.2 - Use the trained model to decipher cancer signature process
  */
 process reconstruct_profiles {
     publishDir path: deciphered_processes_out_dir,
