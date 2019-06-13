@@ -31,14 +31,76 @@ The workflow consists of 4 steps
     4. From column 4 onward, each column represent one sample
 
     There are subcommand to be used for each type of genetic variation
-    - `cancersig feature SNV` is for extraction single nucletide variant feature
-    - `cancersig feature SV` is for extraction structural variant feature
-    - `cancersig feature MSI` is for extraction microsatellite instability feature
+    - `cancersig feature snv` is for extraction single nucletide variant feature
+    - `cancersig feature sv` is for extraction structural variant feature
+    - `cancersig feature msi` is for extraction microsatellite instability feature
     - `cancersig feature merge` is for merging all feature profiles into one single profile ready to be used by the next step
 3. Deciphering mutational signatures - `cancersig signature` - The purpose of this step is to use unsupervised learning model to find mutational signature components in the tumors.
 4. Visualizing profiles `cancersig visualize` - The purpose of this step is to visualize mutational signature component for each tumor.
 
 ## Usage
+
+```
+usage: cancersig <command> [options]
+```
+
+Key commands:
+```
+profile             extract mutational profile
+signature           extract mutational sigantures from mutational profiles
+visualize           visualize mutational signatures identified in tumors
+```
+
+`cancersig profile` key commands:
+```
+snv                 extract SNV mutational profile
+sv                  extract SV mutational profile
+msi                 extract MSI mutational profile
+merge               merge all mutaitonal profile into a single profile
+```
+
+`cancersig profile snv` [options]:
+```
+-i {file}           input VCF file (required)
+-g {file}           genotype format (default="GTR")
+-r {file}           path to genome reference (required)
+-o {file}           output snv feature file (required)
+```
+
+`cancersig profile sv` [options]:
+```
+-i {file}           input VCF file (required)
+-o {file}           output sv feature file (required)
+```
+
+`cancersig profile msi` [options]:
+```
+--raw_msisensor_report {file}    an output from "msisensor msi" that have only msi score (percentage of MSI loci) (required)
+--raw_msisensor_somatic {file}   an output from "msisensor msi" that have suffix "_somatic" (required)
+--sample_id {id}                 a sample id to be used as a column header in the output file (required)
+-o {file}                        output msi feature file (required)
+```
+
+`cancersig profile merge` [options]:
+```
+-i {directory,file}  directory (or a file with list of directories) containing feature files to be merged (required)
+-o {file}            output merged feature file (required)
+```
+
+`cancersig signature` [options]:
+```
+--mutation_profiles {file}      input mutation calalog to be deciphered (required)
+--min_signatures                minimum number of signatures to be deciphered (default=2)
+--max_signatures                maximum number of signatures to be deciphered (default=15)
+--out_prefix                    output file prefix
+```
+
+`cancersig visualize` [options]:
+```
+--mutation_profiles {file}         input mutation calalog to be reconstructed (required)
+--signatures_probabilities {file}  input file with deciphered cancer signatures probabilities (required)
+--output_dir {directory)           output directory (required)
+```
 
 ## Example
 
