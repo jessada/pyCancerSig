@@ -125,7 +125,7 @@ Example run:
 cancersig profile snv -i input.vcf -r /path/to/reference.fa -o snv_feature.txt
 ```
 
-Examples output: https://github.com/jessada/pyCancerSig/example/output_snv_feature.txt
+[Example SNV feature output](./example/output_snv_feature.txt)
 
 ###### 2.2 SV profiling
 
@@ -141,7 +141,7 @@ Example run:
 cancersig profile sv -i input.vcf -o sv_feature.txt
 ```
 
-Example output: https://github.com/jessada/pyCancerSig/example/output_sv_feature.txt
+[Example SV feature output](./example/output_sv_feature.txt)
 
 ###### 2.3 MSI profiling
 
@@ -157,7 +157,7 @@ Example run:
 cancersig profile msi --raw_msisensor_report msisensor_out --raw_msisensor_somatic msisensor_out_somatic --sample_id example_sample -o msi_feature.txt
 ```
 
-Example output: https://github.com/jessada/pyCancerSig/example/output_msi_feature.txt
+[Example MSI feature output](./example/output_msi_feature.txt)
 
 ###### 2.4 Merge profile
 
@@ -174,7 +174,7 @@ Example run (multiple folder):
 cancersig profile merge -i a_file_with_list_of_folders.txt -o merged_mutational_profile.txt
 ```
 
-Example output: https://github.com/jessada/pyCancerSig/example/output_merged_feature.txt
+[Example merged feature file](./example/output_merged_feature.txt)
 
 ## Examples and details - Step 3 Deciphering mutational sigantures
 
@@ -188,8 +188,8 @@ cancersig signature --mutation_profile merged_mutational_profile.txt --out_prefi
 ```
 
 Example output:
-- https://github.com/jessada/pyCancerSig/example/output_deciphered_4_signatures.txt
-- https://github.com/jessada/pyCancerSig/example/output_deciphered_4_signatures.pdf
+- [Example of signature probabilities (4 signatures)](./example/output_deciphered_4_signatures.txt)
+- [Example of deciphered signatures (4 signatures)](./example/output_deciphered_4_signatures.pdf)
 
 ## Example and details - Step 4 Visualizing profile
 
