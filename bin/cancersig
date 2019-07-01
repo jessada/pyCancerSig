@@ -1,0 +1,72 @@
+import sys
+import argparse
+
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help(sys.stderr)
+        sys.exit(2)
+
+PROG = "cancersig"
+
+
+argp = MyParser(prog="cancersig",
+                usage=PROG+" <command> [options]",
+                description="pyCancerSig: subclassifying human cancer with comprehensive single nucleotide, structural and microsattelite mutation signature deconstruction from whole genome sequencing")
+
+# Add main sub-commands
+arg_subp = argp.add_subparsers(title="commands",
+                               help='for more information, specify -h after a command',
+                               dest="command_action"
+                               )
+arg_profile_command = arg_subp.add_parser('profile',
+                                          usage=PROG+" profile <profile type> [options]",
+                                          help='extract mutational profile')
+arg_signature_command = arg_subp.add_parser('signature',
+                                            help='extract mutational sigantures from mutational profiles')
+arg_visualize_command = arg_subp.add_parser('visualize',
+                                            help='visualize mutational signatures identified in tumors')
+
+# Add sub-commands for profiling
+arg_profile_command_subp = arg_profile_command.add_subparsers(title="profile types",
+                                                              help='for more information, specify -h after a command',
+                                                              dest="profile_action",
+                                                              )
+arg_profile_snv_subcommand = arg_profile_command_subp.add_parser('snv',
+                                                                 help='extract SNV mutational profile',
+                                                                 )
+arg_profile_sv_subcommand = arg_profile_command_subp.add_parser('sv',
+                                                                help='extract SV mutational profile')
+arg_profile_msi_subcommand = arg_profile_command_subp.add_parser('msi',
+                                                                 help='extract MSI mutational profile')
+arg_profile_merge_subcommand = arg_profile_command_subp.add_parser('merge',
+                                                                   help='merge mutational profiles into a single profile')
+
+
+args = argp.parse_args()
+
+if args.command_action == "profile":
+    if args.profile_action == "snv":
+        print("# ERROR!: cancersig profile snv is not yet implemented", file=sys.stderr)
+        sys.exit(2)
+    if args.profile_action == "sv":
+        print("# ERROR!: cancersig profile sv is not yet implemented", file=sys.stderr)
+        sys.exit(2)
+    if args.profile_action == "msi":
+        print("# ERROR!: cancersig profile msi is not yet implemented", file=sys.stderr)
+        sys.exit(2)
+    if args.profile_action == "merge":
+        print("# ERROR!: cancersig profile merge is not yet implemented", file=sys.stderr)
+        sys.exit(2)
+    print("error : please indicate correct profiling command", file=sys.stderr)
+    arg_profile_command.print_help(sys.stderr)
+    sys.exit(2)
+elif args.command_action == "signature":
+    print("# ERROR!: cancersig signature is not yet implemented", file=sys.stderr)
+    sys.exit(2)
+elif args.command_action == "visualize":
+    print("# ERROR!: cancersig visualize is not yet implemented", file=sys.stderr)
+    sys.exit(2)
+else:
+    argp.print_help(sys.stderr)
+    sys.exit(2)

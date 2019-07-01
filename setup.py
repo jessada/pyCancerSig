@@ -6,11 +6,16 @@ setup(
     author='Jessada Thutkawkorapin',
     author_email='jessada.thutkawkorapin@gmail.com',
     packages=['cancersig',
-              'cancersig.features',
+              'cancersig.profiler',
               ],
+    scripts=['bin/cancersig',
+             ],
     package=['pyCancerSig'],
     url='http://pypi.python.org/pypi/pyCancerSig/',
     license='LICENSE.txt',
     description='Python packages for deciphering cancer signature processes',
     long_description=open('README.md').read(),
+    install_requires=[
+        "Biopython >= 1.72",
+        ],
 )

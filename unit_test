@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [[ -z "${PYTHON_TEST_DIR}" ]];
+then
+    >&2 echo "# Environment variable \"PYTHON_TEST_DIR\" is not found, setting it to $TMPDIR"
+    export PYTHON_TEST_DIR="$TMPDIR"
+fi
+
+>&2 echo "# Running unit test on $PYTHON_TEST_DIR "
+
+
+
+python -tt -m unittest discover -v
