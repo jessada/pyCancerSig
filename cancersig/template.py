@@ -6,6 +6,7 @@ import os
 import shutil
 from os.path import join as join_path
 from os.path import dirname
+from cancersig.utils import logger
 
 class pyCancerSigBase(object):
     """ pyCancerSig base class """
@@ -13,6 +14,7 @@ class pyCancerSigBase(object):
     def __init__(self, *args, **kwargs):
         self.__time_stamp = datetime.datetime.now()
         self.pkg_root_dir = dirname(dirname(__file__))
+        self.debug_mode = False
 
     @property
     def current_func_name(self):
@@ -25,6 +27,31 @@ class pyCancerSigBase(object):
     def create_dir(self, dir_name):
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
+
+    def dbg(self, dbg_msg=""):
+        if self.debug_mode:
+            frm = inspect.stack()[1]
+            mod = inspect.getmodule(frm[0])
+            logger.getLogger(mod.__name__)
+            logger.dbg(dbg_msg)
+
+    def info(self, info_msg=""):
+        frm = inspect.stack()[1]
+        mod = inspect.getmodule(frm[0])
+        logger.getLogger(mod.__name__)
+        logger.info(info_msg)
+
+    def warning(self, warning_msg=""):
+        frm = inspect.stack()[1]
+        mod = inspect.getmodule(frm[0])
+        logger.getLogger(mod.__name__)
+        logger.warning(warning_msg)
+
+    def throw(self, err_msg=""):
+        frm = inspect.stack()[1]
+        mod = inspect.getmodule(frm[0])
+        logger.getLogger(mod.__name__)
+        logger.throw(err_msg)
 
 
 class Tester(unittest.TestCase, pyCancerSigBase):

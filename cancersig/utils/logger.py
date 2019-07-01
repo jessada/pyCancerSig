@@ -1,7 +1,7 @@
 import logging
 import sys
 
-lg = logging.getLogger('pycancersig')
+lg = logging.getLogger('cancersig')
 lg.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()

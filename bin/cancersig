@@ -1,5 +1,7 @@
 import sys
 import argparse
+from cancersig.app.profile import app_profile_snv
+from cancersig.app.profile import app_profile_msi
 
 class MyParser(argparse.ArgumentParser):
     def error(self, message):
@@ -8,7 +10,6 @@ class MyParser(argparse.ArgumentParser):
         sys.exit(2)
 
 PROG = "cancersig"
-
 
 argp = MyParser(prog="cancersig",
                 usage=PROG+" <command> [options]",
@@ -19,48 +20,110 @@ arg_subp = argp.add_subparsers(title="commands",
                                help='for more information, specify -h after a command',
                                dest="command_action"
                                )
+
+
+## ******************************************** cancersig profile **********************************************************
 arg_profile_command = arg_subp.add_parser('profile',
                                           usage=PROG+" profile <profile type> [options]",
                                           help='extract mutational profile')
+
+
+## ******************************************** cancersig signature **********************************************************
 arg_signature_command = arg_subp.add_parser('signature',
+                                            usage=PROG+" signature [options]",
                                             help='extract mutational sigantures from mutational profiles')
+
+
+## ******************************************** cancersig visualize **********************************************************
 arg_visualize_command = arg_subp.add_parser('visualize',
+                                            usage=PROG+" visualize [options]",
                                             help='visualize mutational signatures identified in tumors')
 
+
+## ******************************************** cancersig profile sub parsers **********************************************************
 # Add sub-commands for profiling
 arg_profile_command_subp = arg_profile_command.add_subparsers(title="profile types",
                                                               help='for more information, specify -h after a command',
                                                               dest="profile_action",
                                                               )
+
+
+# ******************************************** cancersig profile snv **********************************************************
 arg_profile_snv_subcommand = arg_profile_command_subp.add_parser('snv',
+                                                                 usage=PROG+" profile snv [options]",
                                                                  help='extract SNV mutational profile',
                                                                  )
+
+
+# ******************************************** cancersig profile sv **********************************************************
 arg_profile_sv_subcommand = arg_profile_command_subp.add_parser('sv',
+                                                                usage=PROG+" profile sv [options]",
                                                                 help='extract SV mutational profile')
+
+
+# ******************************************** cancersig profile msi **********************************************************
 arg_profile_msi_subcommand = arg_profile_command_subp.add_parser('msi',
+                                                                 usage=PROG+" profile msi [options]",
                                                                  help='extract MSI mutational profile')
+arg_profile_msi_required_group = arg_profile_msi_subcommand.add_argument_group('required arguments')
+arg_profile_msi_required_group.add_argument('--raw_msisensor_out',
+                                            dest='profile_msi_raw_msisensor_out',
+                                            metavar="{FILE}",
+                                            help='an output from "msisensor msi" that have only msi score (percentage of MSI loci)',
+                                            required=True,
+                                            )
+arg_profile_msi_required_group.add_argument('--raw_msisensor_out_somatic',
+                                            dest='profile_msi_raw_msisensor_out_somatic',
+                                            metavar="{FILE}",
+                                            help='an output from "msisensor msi" that have suffix "_somatic"',
+                                            required=True,
+                                            )
+arg_profile_msi_required_group.add_argument('--sample_id',
+                                            dest='profile_msi_sample_id',
+                                            metavar="{ID}",
+                                            help='a sample id to be used as a column header in the output file',
+                                            required=True,
+                                            )
+arg_profile_msi_required_group.add_argument('-o',
+                                            '--output_file',
+                                            dest='profile_msi_output_file',
+                                            metavar="{FILE}",
+                                            help='an output msi feature file',
+                                            required=True,
+                                            )
+
+
+# ******************************************** cancersig profile merge **********************************************************
 arg_profile_merge_subcommand = arg_profile_command_subp.add_parser('merge',
+                                                                   usage=PROG+" profile merge [options]",
                                                                    help='merge mutational profiles into a single profile')
 
 
+
+
+# ******************************************** parsing command line arguments and executing **********************************************************
 args = argp.parse_args()
 
 if args.command_action == "profile":
     if args.profile_action == "snv":
         print("# ERROR!: cancersig profile snv is not yet implemented", file=sys.stderr)
         sys.exit(2)
-    if args.profile_action == "sv":
+    elif args.profile_action == "sv":
         print("# ERROR!: cancersig profile sv is not yet implemented", file=sys.stderr)
         sys.exit(2)
-    if args.profile_action == "msi":
-        print("# ERROR!: cancersig profile msi is not yet implemented", file=sys.stderr)
-        sys.exit(2)
-    if args.profile_action == "merge":
+    elif args.profile_action == "msi":
+        app_profile_msi(raw_msisensor_out=args.profile_msi_raw_msisensor_out,
+                        raw_msisensor_out_somatic=args.profile_msi_raw_msisensor_out_somatic,
+                        sample_id=args.profile_msi_sample_id,
+                        output_file=args.profile_msi_output_file,
+                        )
+    elif args.profile_action == "merge":
         print("# ERROR!: cancersig profile merge is not yet implemented", file=sys.stderr)
         sys.exit(2)
-    print("error : please indicate correct profiling command", file=sys.stderr)
-    arg_profile_command.print_help(sys.stderr)
-    sys.exit(2)
+    else:
+        print("error : please indicate correct profiling command", file=sys.stderr)
+        arg_profile_command.print_help(sys.stderr)
+        sys.exit(2)
 elif args.command_action == "signature":
     print("# ERROR!: cancersig signature is not yet implemented", file=sys.stderr)
     sys.exit(2)
