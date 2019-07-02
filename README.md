@@ -71,6 +71,7 @@ merge               merge all mutaitonal profile into a single profile
 ```
 -i {file}           input VCF file (required)
 -o {file}           output sv feature file (required)
+--sample_id {id}    a sample id to be used as a column header in the output file (This will replace sample id from vcf header) (optional)
 ```
 
 `cancersig profile msi` [options]:
@@ -134,7 +135,7 @@ cancersig profile snv -i input.vcf -r /path/to/reference.fa -o snv_feature.txt
 - check INFO field "SVLEN" for length of the event
 - then, perform SV profiling of the sample by counting number of SVs in each category and divide it by total number of variants in the sample.
 
-The sample id in the output feature file will be the same as sample id in the input VCF file.
+The sample id in the output feature file will be the same as sample id in the input VCF file (column 10).
 
 Example run:
 ```

@@ -48,7 +48,8 @@ def show_config(app_description,
     disp_param("hostname", socket.gethostname())
     disp_param("user", getpass.getuser())
     disp_params_set("Third party software version", third_party_software_version)
-    disp_params_set("Required parameters", required_params) 
+    if (required_params is not None) and (len(required_params) > 0):
+        disp_params_set("Required parameters", required_params) 
     if (optional_params is not None) and (len(optional_params) > 0):
         disp_params_set("Optional parameters", optional_params) 
 

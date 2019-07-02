@@ -3,15 +3,15 @@ import filecmp
 from os.path import join as join_path
 from cancersig.template import Tester
 from cancersig.utils.logger import info
-#from cancersig.profile.msi import MSI_FEATURES_TEMPLATE
+from cancersig.profile.msi import MSI_FEATURES_TEMPLATE
 from cancersig.profile.msi import MSIProfiler
 
 class TestMSIProfiler(Tester):
 
     def __init__(self, methodName):
         super(TestMSIProfiler, self).__init__(methodName=methodName,
-                                         test_module_name=__name__,
-                                         )
+                                              test_module_name=__name__,
+                                              )
 
     def setUp(self):
         self.__msi_profiler = MSIProfiler()
@@ -36,6 +36,7 @@ class TestMSIProfiler(Tester):
         exp_output_file = join_path(self.data_dir,
                                     "exp_output_file")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.extract_features()')
+        self.debug_mode = True
 
     def test_extract_features_2(self):
         """ test extracting msi features for an MSI negative sample """
