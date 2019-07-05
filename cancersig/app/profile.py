@@ -2,19 +2,46 @@ import sys
 from collections import OrderedDict
 from cancersig.utils import logger
 from cancersig.utils import disp
-from cancersig.profile.msi import MSIProfiler
+from cancersig.profile.snv import SNVProfiler
 from cancersig.profile.sv import SVProfiler
+from cancersig.profile.msi import MSIProfiler
 
-APP_PROFILE_MSI_DESCRIPTION = "To extract MSI features from msisensor output"
+APP_PROFILE_SNV_DESCRIPTION = "To extract SNV features from somatic SNV call in vcf format"
 APP_PROFILE_SV_DESCRIPTION = "To extract structural variantion features from FindSV output"
+APP_PROFILE_MSI_DESCRIPTION = "To extract MSI features from msisensor output"
 
 def app_profile_snv(*args, **kwargs):
     logger.getLogger(__name__)
     func_name = sys._getframe().f_code.co_name[4:]
 
-    disp.new_section_txt("S T A R T <" + func_name + ">")
+    input_vcf_file = kwargs['input_vcf_file']
+    ref_genome_file = kwargs['ref_genome_file']
+    output_file = kwargs['output_file']
+    gt_format = kwargs['gt_format']
+    sample_id = kwargs['sample_id']
+
+    disp.new_section_txt("S T A R T < " + func_name + " >")
+    required_params = OrderedDict()
+    required_params['input vcf file name (-i/--input_vcf_file)'] = input_vcf_file
+    required_params['reference genome (-r/--reference)'] = ref_genome_file
+    required_params['output file name (-o/--output_file)'] = output_file
+    optional_params = OrderedDict()
+    optional_params['sample id (--sample_id)'] = sample_id
+    optional_params['genotype format (-g/--gt_format)'] = gt_format
+    disp.show_config(app_description=APP_PROFILE_SNV_DESCRIPTION,
+                     required_params=required_params,
+                     optional_params=optional_params,
+                     )
+    disp.new_section_txt("E X E C U T E < " + func_name + " >")
+    snv_profiler = SNVProfiler()
+    snv_profiler.profile(input_vcf_file,
+                         ref_genome_file,
+                         output_file,
+                         gt_format,
+                         sample_id,
+                         )
     logger.getLogger(__name__)
-    disp.new_section_txt("F I N I S H <" + func_name + ">")
+    disp.new_section_txt("F I N I S H < " + func_name + " >")
 
 def app_profile_sv(*args, **kwargs):
     logger.getLogger(__name__)
@@ -36,10 +63,10 @@ def app_profile_sv(*args, **kwargs):
                      )
     disp.new_section_txt("E X E C U T E < " + func_name + " >")
     sv_profiler = SVProfiler()
-    sv_profiler.extract_features(input_vcf_file,
-                                 output_file,
-                                 sample_id,
-                                 )
+    sv_profiler.profile(input_vcf_file,
+                        output_file,
+                        sample_id,
+                        )
     logger.getLogger(__name__)
     disp.new_section_txt("F I N I S H < " + func_name + " >")
 
@@ -65,10 +92,10 @@ def app_profile_msi(*args, **kwargs):
                      )
     disp.new_section_txt("E X E C U T E < " + func_name + " >")
     msi_profiler = MSIProfiler()
-    msi_profiler.extract_features(raw_msisensor_out,
-                                  raw_msisensor_out_somatic,
-                                  sample_id,
-                                  output_file,
-                                  )
+    msi_profiler.profile(raw_msisensor_out,
+                         raw_msisensor_out_somatic,
+                         sample_id,
+                         output_file,
+                         )
     logger.getLogger(__name__)
     disp.new_section_txt("F I N I S H < " + func_name + " >")

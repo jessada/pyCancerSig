@@ -37,4 +37,3 @@ def dbg(msg=""):
 
 def throw(err_msg):
     lg.exception(err_msg)
-

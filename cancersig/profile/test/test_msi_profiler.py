@@ -17,7 +17,7 @@ class TestMSIProfiler(Tester):
         self.__msi_profiler = MSIProfiler()
         self.__msi_profiler.debug_mode = True
 
-    def test_extract_features_1(self):
+    def test_profile_1(self):
         """ test extracting msi features for an MSI positive sample """
 
         self.init_test(self.current_func_name)
@@ -28,17 +28,16 @@ class TestMSIProfiler(Tester):
         sample_id = "example_sample"
         output_file = join_path(self.working_dir,
                                 self.current_func_name+".txt")
-        self.__msi_profiler.extract_features(raw_msisensor_out,
-                                             raw_msisensor_out_somatic,
-                                             sample_id,
-                                             output_file,
-                                             )
+        self.__msi_profiler.profile(raw_msisensor_out,
+                                    raw_msisensor_out_somatic,
+                                    sample_id,
+                                    output_file,
+                                    )
         exp_output_file = join_path(self.data_dir,
                                     "exp_output_file")
-        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.extract_features()')
-        self.debug_mode = True
+        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.profile()')
 
-    def test_extract_features_2(self):
+    def test_profile_2(self):
         """ test extracting msi features for an MSI negative sample """
 
         self.init_test(self.current_func_name)
@@ -49,12 +48,12 @@ class TestMSIProfiler(Tester):
         sample_id = "example_sample"
         output_file = join_path(self.working_dir,
                                 self.current_func_name+".txt")
-        self.__msi_profiler.extract_features(raw_msisensor_out,
-                                             raw_msisensor_out_somatic,
-                                             sample_id,
-                                             output_file,
-                                             )
+        self.__msi_profiler.profile(raw_msisensor_out,
+                                    raw_msisensor_out_somatic,
+                                    sample_id,
+                                    output_file,
+                                    )
         exp_output_file = join_path(self.data_dir,
                                     "exp_output_file")
-        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.extract_features()')
+        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.profile()')
 

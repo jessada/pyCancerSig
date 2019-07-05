@@ -54,6 +54,41 @@ arg_profile_snv_subcommand = arg_profile_command_subp.add_parser('snv',
                                                                  usage=PROG+" profile snv [options]",
                                                                  help='extract SNV mutational profile',
                                                                  )
+arg_profile_snv_required_group = arg_profile_snv_subcommand.add_argument_group('required arguments')
+arg_profile_snv_required_group.add_argument('-i',
+                                            '--input_vcf_file',
+                                            dest='profile_snv_input_vcf_file',
+                                            metavar="{FILE}",
+                                            help='an input VCF file',
+                                            required=True,
+                                            )
+arg_profile_snv_required_group.add_argument('-o',
+                                            '--output_file',
+                                            dest='profile_snv_output_file',
+                                            metavar="{FILE}",
+                                            help='an output snv feature file',
+                                            required=True,
+                                            )
+arg_profile_snv_required_group.add_argument('-r',
+                                            '--reference',
+                                            dest='profile_snv_ref_genome_file',
+                                            metavar="{FILE}",
+                                            help='path to genome reference',
+                                            required=True,
+                                            )
+arg_profile_snv_subcommand.add_argument('-g',
+                                        '--gt_format',
+                                        dest='profile_snv_gt_format',
+                                        metavar="{GT_FORMAT}",
+                                        help='genotype format (default="GTR")',
+                                        default="GTR",
+                                        )
+arg_profile_snv_subcommand.add_argument('--sample_id',
+                                        dest='profile_snv_sample_id',
+                                        metavar="{ID}",
+                                        help='a sample id to be used as a column header in the output file (This will replace sample id from vcf header)',
+                                        default=None,
+                                        )
 
 
 # ******************************************** cancersig profile sv **********************************************************
@@ -128,15 +163,17 @@ args = argp.parse_args()
 
 if args.command_action == "profile":
     if args.profile_action == "snv":
-        print("# ERROR!: cancersig profile snv is not yet implemented", file=sys.stderr)
-        sys.exit(2)
+        app_profile_snv(input_vcf_file=args.profile_snv_input_vcf_file,
+                        ref_genome_file=args.profile_snv_ref_genome_file,
+                        output_file=args.profile_snv_output_file,
+                        gt_format=args.profile_snv_gt_format,
+                        sample_id=args.profile_snv_sample_id,
+                        )
     elif args.profile_action == "sv":
         app_profile_sv(input_vcf_file=args.profile_sv_input_vcf_file,
                        output_file=args.profile_sv_output_file,
                        sample_id=args.profile_sv_sample_id,
                        )
-#        print("# ERROR!: cancersig profile sv is not yet implemented", file=sys.stderr)
-#        sys.exit(2)
     elif args.profile_action == "msi":
         app_profile_msi(raw_msisensor_out=args.profile_msi_raw_msisensor_out,
                         raw_msisensor_out_somatic=args.profile_msi_raw_msisensor_out_somatic,

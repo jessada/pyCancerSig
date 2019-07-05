@@ -23,12 +23,12 @@ class SVProfiler(pyCancerSigBase):
     def __init__(self, *args, **kwargs):
         super(SVProfiler, self).__init__(*args, **kwargs)
 
-    def __extract_features(self,
-                           input_vcf_file,
-                           output_file,
-                           sample_id=None,
-                           ):
-        features_count = copy.copy(SV_FEATURES_TEMPLATE)
+    def __profile(self,
+                  input_vcf_file,
+                  output_file,
+                  sample_id=None,
+                  ):
+        features_count = copy.deepcopy(SV_FEATURES_TEMPLATE)
         with open(input_vcf_file) as f_i:
             for line in f_i:
                 if line[0:2] == "##":
@@ -78,6 +78,7 @@ class SVProfiler(pyCancerSigBase):
                 elif len_log10 > 2:
                     feature_id = SV_FEATURES_HASH[event_type][SV_LEN_LOG10_2_3]
                 else:
+                    self.info("variant at " + str(chrA) + ":" + str(posA) + " is too small to be considered")
                     # too small to be considered as any features
                     continue
                 features_count[feature_id][FEATURE_QUANTITY] += 1
@@ -91,21 +92,21 @@ class SVProfiler(pyCancerSigBase):
             header = VARIANT_TYPE
             header += "\t" + VARIANT_SUBGROUP
             header += "\t" + FEATURE_ID
-            header += "\t" + str(sample_id)
+            header += "\t" + sample_id
             f_o.write(header+"\n")
             for feature_id in features_count:
-                f_o.write("{:s}\t{:s}\t{:s}\t{:.8f}\n".format(SV_FEATURES_TEMPLATE[feature_id][VARIANT_TYPE],
-                                                              SV_FEATURES_TEMPLATE[feature_id][VARIANT_SUBGROUP],
-                                                              feature_id,
-                                                              (SV_FEATURES_TEMPLATE[feature_id][FEATURE_QUANTITY]/total_event)+SMALL_QUANTITY,
-                                                              ))
+                f_o.write("{:s}\t{:s}\t{:s}\t{:d}\n".format(features_count[feature_id][VARIANT_TYPE],
+                                                            features_count[feature_id][VARIANT_SUBGROUP],
+                                                            feature_id,
+                                                            features_count[feature_id][FEATURE_QUANTITY],
+                                                            ))
 
-    def extract_features(self,
-                         input_vcf_file,
-                         output_file,
-                         sample_id=None,
-                         ):
-        self.__extract_features(input_vcf_file,
-                                output_file,
-                                sample_id,
-                                )
+    def profile(self,
+                input_vcf_file,
+                output_file,
+                sample_id=None,
+                ):
+        self.__profile(input_vcf_file,
+                       output_file,
+                       sample_id,
+                       )

@@ -15,7 +15,7 @@ class TestSVProfiler(Tester):
         self.__sv_profiler = SVProfiler()
         self.__sv_profiler.debug_mode = True
 
-    def test_extract_features_1(self):
+    def test_profile_1(self):
         """ test extracting sv features on standard argument (sample id from vcf header) """
 
         self.init_test(self.current_func_name)
@@ -23,26 +23,25 @@ class TestSVProfiler(Tester):
                                    "input.vcf")
         output_file = join_path(self.working_dir,
                                 self.current_func_name+".txt")
-        self.__sv_profiler.extract_features(input_vcf_file,
-                                            output_file,
-                                            )
+        self.__sv_profiler.profile(input_vcf_file,
+                                   output_file,
+                                   )
         exp_output_file = join_path(self.data_dir,
                                     "exp_output_file")
-        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SVProfiler.extract_features()')
+        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SVProfiler.profile()')
 
-    def test_extract_features_2(self):
+    def test_profile_2(self):
         """ test extracting sv features with sample id as an argument """
 
-        self.individual_debug = True
         self.init_test(self.current_func_name)
         input_vcf_file = join_path(self.data_dir,
                                    "input.vcf")
         output_file = join_path(self.working_dir,
                                 self.current_func_name+".txt")
-        self.__sv_profiler.extract_features(input_vcf_file,
-                                            output_file,
-                                            sample_id="example_sample_from_argument",
-                                            )
+        self.__sv_profiler.profile(input_vcf_file,
+                                   output_file,
+                                   sample_id="example_sample_from_argument",
+                                   )
         exp_output_file = join_path(self.data_dir,
                                     "exp_output_file")
-        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SVProfiler.extract_features()')
+        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SVProfiler.profile()')
