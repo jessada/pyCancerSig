@@ -64,7 +64,7 @@ def disp_params_set(params_name,
     else:
         disp_header(params_name, new_line=False)
     if type(params) is list:
-        for entry_idx in xrange(len(params)):
+        for entry_idx in range(len(params)):
             entry = params[entry_idx]
             if ((type(entry) is list) or
                 (type(entry) is dict) or

@@ -1,6 +1,8 @@
 # pyCancerSig
+# A python package for deciphering cancer signatures.
 
-#### A comprehensive package to perform tumor mutation profiling and cancer signature analysis from whole genome and/or whole exome sequencing data.
+Comprehensive cancer signatures with a main workflow in nextflow, and reusable modules written in python.
+Integrate SNV, SV and MSI profiles in signatures decomposed using non-negative matrix factorisation, and produce production ready pdf reports. 
 
 ## Installation
 
@@ -92,8 +94,9 @@ merge               merge all mutaitonal profile into a single profile
 
 `cancersig profile merge` [options]:
 ```
--i {directory,file}  directory (or a file with list of directories) containing feature files to be merged (required)
--o {file}            output merged feature file (required)
+-i {directories}                 comma-separated directories containing feature files to be merged (required)
+-o {file}                        output merged feature file (required)
+--profile_types [SV,SNV,MSI]     profile types to be merged, (default: SV,SNV,MSI)
 ```
 
 `cancersig signature` [options]:
@@ -114,9 +117,9 @@ merge               merge all mutaitonal profile into a single profile
 ## Examples and details - Step 1 Data preprocessing
 
 As this part is performed by third-party software, please check the original website for the documentation
-- Single nucleotide variant (SNV) - https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_cancer_m2_MuTect2.php
-- Structural variant (SV) - https://github.com/J35P312/FindSV
-- Microsatellite instability (MSI) - https://github.com/ding-lab/msisensor
+- [Single nucleotide variant (SNV)](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_cancer_m2_MuTect2.php)
+- [Structural variant (SV)](https://github.com/J35P312/FindSV)
+- [Microsatellite instability (MSI)](https://github.com/ding-lab/msisensor)
 
 ## Examples and details - Step 2 Profiling (Feature extraction)
 
@@ -171,16 +174,16 @@ cancersig profile msi --raw_msisensor_report msisensor_out --raw_msisensor_somat
 ###### 2.4 Merge profile
 
 `cancersig profile merge` will
-- scan for \*.feature.txt files in the input folder(s)
+- scan for \*feature.txt or \*profile.txt files in the input folder(s)
 - if a sample has all feature of all mutation types (SNV, SV, MSI), it will be merged into one profile. The percentage weight of SNV, SV and MSI are 70%, 30% and 10% respectively.
 
-Example run (single folder):
+Example run:
 ```
-cancersig profile merge -i /path/to/all/feature.txt -o merged_feature.txt
+cancersig profile merge -i /path/to/first/dir,/path/to/second/dir -o merged_feature.txt
 ```
-Example run (multiple folder):
+Example run for mergeing certain profile types (SV and SNV in this case:
 ```
-cancersig profile merge -i a_file_with_list_of_folders.txt -o merged_mutational_profile.txt
+cancersig profile merge -i /path/to/first/dir,/path/to/second/dir -o merged_feature.txt --profile_types SNV,SV
 ```
 
 [Example merged feature file](./example/output_merged_feature.txt)

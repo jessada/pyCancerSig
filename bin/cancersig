@@ -3,12 +3,19 @@ import argparse
 from cancersig.app.profile import app_profile_snv
 from cancersig.app.profile import app_profile_sv
 from cancersig.app.profile import app_profile_msi
+from cancersig.app.profile import app_profile_merge
+from cancersig.profile.features import PROFILE_TYPES
 
 class MyParser(argparse.ArgumentParser):
     def error(self, message):
         sys.stderr.write('error: %s\n' % message)
         self.print_help(sys.stderr)
         sys.exit(2)
+
+class SplitAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values.split(','))
+
 
 PROG = "cancersig"
 
@@ -27,21 +34,6 @@ arg_subp = argp.add_subparsers(title="commands",
 arg_profile_command = arg_subp.add_parser('profile',
                                           usage=PROG+" profile <profile type> [options]",
                                           help='extract mutational profile')
-
-
-## ******************************************** cancersig signature **********************************************************
-arg_signature_command = arg_subp.add_parser('signature',
-                                            usage=PROG+" signature [options]",
-                                            help='extract mutational sigantures from mutational profiles')
-
-
-## ******************************************** cancersig visualize **********************************************************
-arg_visualize_command = arg_subp.add_parser('visualize',
-                                            usage=PROG+" visualize [options]",
-                                            help='visualize mutational signatures identified in tumors')
-
-
-## ******************************************** cancersig profile sub parsers **********************************************************
 # Add sub-commands for profiling
 arg_profile_command_subp = arg_profile_command.add_subparsers(title="profile types",
                                                               help='for more information, specify -h after a command',
@@ -154,8 +146,39 @@ arg_profile_msi_required_group.add_argument('-o',
 arg_profile_merge_subcommand = arg_profile_command_subp.add_parser('merge',
                                                                    usage=PROG+" profile merge [options]",
                                                                    help='merge mutational profiles into a single profile')
+arg_profile_merge_required_group = arg_profile_merge_subcommand.add_argument_group('required arguments')
+arg_profile_merge_required_group.add_argument('--input_dirs',
+                                              '-i',
+                                              dest='profile_merge_input_dirs',
+                                              metavar="{DIRECTORIES}",
+                                              help='comma-separated directories containing feature files to be merged',
+                                              required=True,
+                                              )
+arg_profile_merge_required_group.add_argument('-o',
+                                              '--output_file',
+                                              dest='profile_merge_output_file',
+                                              metavar="{FILE}",
+                                              help='an output merged feature file',
+                                              required=True,
+                                              )
+arg_profile_merge_subcommand.add_argument('--profile_types',
+                                          dest='profile_merge_profile_types',
+                                          metavar="["+",".join(PROFILE_TYPES)+"]",
+                                          action=SplitAction,
+                                          help='profile types to be merged, (default: '+",".join(PROFILE_TYPES)+')',
+                                          default=PROFILE_TYPES,
+                                          )
+
+## ******************************************** cancersig signature **********************************************************
+arg_signature_command = arg_subp.add_parser('signature',
+                                            usage=PROG+" signature [options]",
+                                            help='extract mutational sigantures from mutational profiles')
 
 
+## ******************************************** cancersig visualize **********************************************************
+arg_visualize_command = arg_subp.add_parser('visualize',
+                                            usage=PROG+" visualize [options]",
+                                            help='visualize mutational signatures identified in tumors')
 
 
 # ******************************************** parsing command line arguments and executing **********************************************************
@@ -181,8 +204,16 @@ if args.command_action == "profile":
                         output_file=args.profile_msi_output_file,
                         )
     elif args.profile_action == "merge":
-        print("# ERROR!: cancersig profile merge is not yet implemented", file=sys.stderr)
-        sys.exit(2)
+        # validate profile types
+        for profile_type in args.profile_merge_profile_types:
+            if profile_type not in PROFILE_TYPES:
+                print("error: argument --profile_types: invalid choice: '"+profile_type+"' (choose from "+", ".join(PROFILE_TYPES)+")", file=sys.stderr)
+                arg_profile_merge_subcommand.print_help(sys.stderr)
+                sys.exit(2)
+        app_profile_merge(input_dirs=args.profile_merge_input_dirs,
+                          output_file=args.profile_merge_output_file,
+                          profile_types=args.profile_merge_profile_types,
+                          )
     else:
         print("error : please indicate correct profiling command", file=sys.stderr)
         arg_profile_command.print_help(sys.stderr)

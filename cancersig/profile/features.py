@@ -4,6 +4,15 @@ from Bio.Seq import Seq
 from collections import OrderedDict
 from collections import defaultdict
 
+PROFILE_TYPE_SNV = "SNV"
+PROFILE_TYPE_SV = "SV"
+PROFILE_TYPE_MSI = "MSI"
+PROFILE_WEIGHTS = OrderedDict()
+PROFILE_WEIGHTS[PROFILE_TYPE_SNV] = 7
+PROFILE_WEIGHTS[PROFILE_TYPE_SV] = 2
+PROFILE_WEIGHTS[PROFILE_TYPE_MSI] = 1
+PROFILE_TYPES = list(PROFILE_WEIGHTS.keys())
+
 VARIANT_TYPE = "variant type"
 VARIANT_SUBGROUP = "variant subgroup"
 FEATURE_ID = "feature id"

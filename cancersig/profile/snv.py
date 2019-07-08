@@ -10,7 +10,7 @@ from cancersig.profile.features import VARIANT_SUBGROUP
 from cancersig.profile.features import FEATURE_ID
 from cancersig.profile.features import FEATURE_QUANTITY
 
-SCRIPT_COUNT_SNV_EVENTS = join_path(CANCERSIG_SCRIPTS_DIR, "count_snv_events.sh")
+SCRIPT_COUNT_SNV_EVENTS = join_path(CANCERSIG_SCRIPTS_DIR, "identify_snv_events.sh")
 
 class SNVProfiler(pyCancerSigBase):
 

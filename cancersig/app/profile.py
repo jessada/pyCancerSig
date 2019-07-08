@@ -5,10 +5,12 @@ from cancersig.utils import disp
 from cancersig.profile.snv import SNVProfiler
 from cancersig.profile.sv import SVProfiler
 from cancersig.profile.msi import MSIProfiler
+from cancersig.profile.merge import ProfileMerger
 
 APP_PROFILE_SNV_DESCRIPTION = "To extract SNV features from somatic SNV call in vcf format"
 APP_PROFILE_SV_DESCRIPTION = "To extract structural variantion features from FindSV output"
 APP_PROFILE_MSI_DESCRIPTION = "To extract MSI features from msisensor output"
+APP_PROFILE_MERGE_DESCRIPTION = "To merge all profiles from all samples into one single profile"
 
 def app_profile_snv(*args, **kwargs):
     logger.getLogger(__name__)
@@ -96,6 +98,33 @@ def app_profile_msi(*args, **kwargs):
                          raw_msisensor_out_somatic,
                          sample_id,
                          output_file,
+                         )
+    logger.getLogger(__name__)
+    disp.new_section_txt("F I N I S H < " + func_name + " >")
+
+def app_profile_merge(*args, **kwargs):
+    logger.getLogger(__name__)
+    func_name = sys._getframe().f_code.co_name[4:]
+
+    input_dirs = kwargs['input_dirs'].split(",")
+    output_file = kwargs['output_file']
+    profile_types = kwargs['profile_types']
+
+    disp.new_section_txt("S T A R T < " + func_name + " >")
+    required_params = OrderedDict()
+    required_params['input directories (-i/--input_dirs)'] = input_dirs
+    required_params['output file name (-o/--output_file)'] = output_file
+    optional_params = OrderedDict()
+    optional_params['profile types to be merged (--profile_types)'] = profile_types
+    disp.show_config(app_description=APP_PROFILE_MERGE_DESCRIPTION,
+                     required_params=required_params,
+                     optional_params=optional_params,
+                     )
+    disp.new_section_txt("E X E C U T E < " + func_name + " >")
+    profile_merger = ProfileMerger()
+    profile_merger.merge(input_dirs,
+                         output_file,
+                         profile_types,
                          )
     logger.getLogger(__name__)
     disp.new_section_txt("F I N I S H < " + func_name + " >")
