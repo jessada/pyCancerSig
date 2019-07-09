@@ -44,8 +44,8 @@ The workflow consists of 4 steps
     - `cancersig feature sv` is for extraction structural variant feature
     - `cancersig feature msi` is for extraction microsatellite instability feature
     - `cancersig feature merge` is for merging all feature profiles into one single profile ready to be used by the next step
-3. Deciphering mutational signatures - `cancersig signature` - The purpose of this step is to use unsupervised learning model to find mutational signature components in the tumors.
-4. Visualizing profiles `cancersig visualize` - The purpose of this step is to visualize mutational signature component for each tumor.
+3. Deciphering mutational signatures - `cancersig signature decipher` - The purpose of this step is to use unsupervised learning model to find mutational signature components in the tumors.
+4. Visualizing profiles `cancersig signature visualize` - The purpose of this step is to visualize mutational signature component for each tumor.
 
 ## Usage
 
@@ -56,8 +56,7 @@ usage: cancersig <command> [options]
 Key commands:
 ```
 profile             extract mutational profile
-signature           extract mutational sigantures from mutational profiles
-visualize           visualize mutational signatures identified in tumors
+signature           decipher mutational cancer signature component and visualization from mutational profiles
 ```
 
 `cancersig profile` key commands:
@@ -66,6 +65,12 @@ snv                 extract SNV mutational profile
 sv                  extract SV mutational profile
 msi                 extract MSI mutational profile
 merge               merge all mutaitonal profile into a single profile
+```
+
+`cancersig signature` key commands:
+```
+decipher            perform unsupervised learning model to find mutational signature components
+visualize           visualize mutational signatures identified in tumors
 ```
 
 `cancersig profile snv` [options]:
@@ -99,7 +104,7 @@ merge               merge all mutaitonal profile into a single profile
 --profile_types [SV,SNV,MSI]     profile types to be merged, (default: SV,SNV,MSI)
 ```
 
-`cancersig signature` [options]:
+`cancersig signature decipher` [options]:
 ```
 --mutation_profiles {file}      input mutation calalog to be deciphered (required)
 --min_signatures                minimum number of signatures to be deciphered (default=2)
@@ -107,7 +112,7 @@ merge               merge all mutaitonal profile into a single profile
 --out_prefix                    output file prefix (required)
 ```
 
-`cancersig visualize` [options]:
+`cancersig signature visualize` [options]:
 ```
 --mutation_profiles {file}         input mutation calalog to be reconstructed (required)
 --signatures_probabilities {file}  input file with deciphered cancer signatures probabilities (required)
@@ -181,22 +186,22 @@ Example run:
 ```
 cancersig profile merge -i /path/to/first/dir,/path/to/second/dir -o merged_feature.txt
 ```
-Example run for mergeing certain profile types (SV and SNV in this case:
+Example run for mergeing certain profile types (SV and SNV in this case):
 ```
 cancersig profile merge -i /path/to/first/dir,/path/to/second/dir -o merged_feature.txt --profile_types SNV,SV
 ```
 
 [Example merged feature file](./example/output_merged_feature.txt)
 
-## Examples and details - Step 3 Deciphering mutational sigantures
+## Examples and details - Step 3 Deciphering mutational signatures
 
-`cancersig signature` will
+`cancersig signature decipher` will
 - load mutational matrix profile
 - identify underlying mutational signatures following EXPERIMENTAL PROCEDURES from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3588146/pdf/main.pdf
 
 Example run:
 ```
-cancersig signature --mutation_profile merged_mutational_profile.txt --out_prefix output_deciphered
+cancersig signature decipher --mutation_profile merged_mutational_profile.txt --out_prefix deciphered_output_file_prefix
 ```
 
 Example output:
@@ -205,11 +210,16 @@ Example output:
 
 ## Example and details - Step 4 Visualizing profile
 
-`cancersig visualize` will
+`cancersig signature visualize` will
 - display mutational signature composition of the sample
 - display the original mutaitonal profile
 - display the reconstruction mutational profile (based on the recomposition)
 - display the reconstruction error
+
+Example run:
+```
+cancersig signature visualize --mutation_profile merged_mutational_profile.txt --signatures_probabilities signatures_probabilities.txt --output_dir /path/to/output/dir
+```
 
 ## Contact
 

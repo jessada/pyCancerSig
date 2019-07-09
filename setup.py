@@ -9,6 +9,7 @@ setup(
               'cancersig.profile',
               'cancersig.app',
               'cancersig.utils',
+              'cancersig.signature',
               ],
     scripts=['bin/cancersig',
              ],

@@ -11,10 +11,11 @@ from cancersig.utils import logger
 class pyCancerSigBase(object):
     """ pyCancerSig base class """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, debug_mode=False, verbose=True, *args, **kwargs):
         self.__time_stamp = datetime.datetime.now()
         self.pkg_root_dir = dirname(dirname(__file__))
-        self.debug_mode = False
+        self.__debug_mode = debug_mode
+        self.__verbose = verbose
 
     @property
     def current_func_name(self):
@@ -29,17 +30,18 @@ class pyCancerSigBase(object):
             os.makedirs(dir_name)
 
     def dbg(self, dbg_msg=""):
-        if self.debug_mode:
+        if self.__debug_mode:
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
             logger.getLogger(mod.__name__)
             logger.dbg(dbg_msg)
 
     def info(self, info_msg=""):
-        frm = inspect.stack()[1]
-        mod = inspect.getmodule(frm[0])
-        logger.getLogger(mod.__name__)
-        logger.info(info_msg)
+        if self.__verbose:
+            frm = inspect.stack()[1]
+            mod = inspect.getmodule(frm[0])
+            logger.getLogger(mod.__name__)
+            logger.info(info_msg)
 
     def warning(self, warning_msg=""):
         frm = inspect.stack()[1]

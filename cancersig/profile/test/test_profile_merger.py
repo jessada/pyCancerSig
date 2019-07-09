@@ -11,7 +11,7 @@ class TestProfileMerger(Tester):
                                                 )
 
     def setUp(self):
-        self.__profile_merger = ProfileMerger()
+        self.__profile_merger = ProfileMerger(verbose=False)
         self.__profile_merger.debug_mode = True
 
     def test_merge_1(self):

@@ -91,7 +91,7 @@ class ProfileMerger(pyCancerSigBase):
         with open(output_file, "w") as f_o:
             header = VARIANT_TYPE
             header += "\t" + VARIANT_SUBGROUP
-            header += "\tfeature_id"
+            header += "\t" + FEATURE_ID
             header += "\t" + "\t".join(samples_list)
             f_o.write(header+"\n")
             if PROFILE_TYPE_SNV in profile_types:
