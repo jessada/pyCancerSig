@@ -5,6 +5,7 @@ from cancersig.app.profile import app_profile_sv
 from cancersig.app.profile import app_profile_msi
 from cancersig.app.profile import app_profile_merge
 from cancersig.app.signature import app_signature_decipher
+from cancersig.app.signature import app_signature_visualize
 from cancersig.profile.features import PROFILE_TYPES
 from cancersig.signature.decipher import DEFAULT_MIN_SIGNATURES
 from cancersig.signature.decipher import DEFAULT_MAX_SIGNATURES
@@ -221,7 +222,27 @@ arg_signature_decipher_subcommand.add_argument('--max_signatures',
 arg_signature_visualize_subcommand = arg_signature_command_subp.add_parser('visualize',
                                                                            usage=PROG+" signature visualize [options]",
                                                                            help='visualize mutational signatures identified in tumors')
-
+arg_signature_visualize_required_group = arg_signature_visualize_subcommand.add_argument_group('required arguments')
+arg_signature_visualize_required_group.add_argument('--mutation_profiles',
+                                                    '-i',
+                                                    dest='signature_visualize_mutation_profiles',
+                                                    metavar="{FILE}",
+                                                    help='input mutation calalog to be visualized',
+                                                    required=True,
+                                                    )
+arg_signature_visualize_required_group.add_argument('--signatures_probabilities',
+                                                    dest='signature_visualize_signatures_probabilities',
+                                                    metavar="{FILE}",
+                                                    help='input file with deciphered cancer signatures probabilities',
+                                                    required=True,
+                                                    )
+arg_signature_visualize_required_group.add_argument('--output_dir',
+                                                    '-o',
+                                                    dest='signature_visualize_output_dir',
+                                                    metavar="{DIR}",
+                                                    help='output directory',
+                                                    required=True,
+                                                    )
 
 # ******************************************** parsing command line arguments and executing **********************************************************
 args = argp.parse_args()
@@ -268,8 +289,10 @@ elif args.command_action == "signature":
                                max_signatures=args.signature_decipher_max_signatures,
                                )
     elif args.signature_action == "visualize":
-        print("# ERROR!: cancersig signature visualize is not yet implemented", file=sys.stderr)
-        sys.exit(2)
+        app_signature_visualize(mutation_profiles=args.signature_visualize_mutation_profiles,
+                                signatures_probabilities=args.signature_visualize_signatures_probabilities,
+                                output_dir=args.signature_visualize_output_dir,
+                                )
     else:
         print("error : please indicate correct signature command", file=sys.stderr)
         arg_signature_command.print_help(sys.stderr)

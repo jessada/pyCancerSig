@@ -1,0 +1,5 @@
+#Strand	Gene	Chr	Pos	Ref	Alt	snp_triplet	dummy_TUMOR	
+-	INTS11	1	1249187	G	A	CGA	0/1
++	MLH1	3	37067391	C	A	TCC	0/1
++	MSH2	2	47672720	T	C	GTG	0/1
+-	POLE	12	133225960	T	C	GTG	0/1

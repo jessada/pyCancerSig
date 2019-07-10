@@ -1,12 +1,8 @@
 import numpy as np
-##import itertools
-#import matplotlib
-#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 plt.ioff()
 import seaborn as sns
-#from matplotlib.colors import ListedColormap
 from matplotlib import ticker
 from collections import OrderedDict
 from collections import defaultdict

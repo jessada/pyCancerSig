@@ -76,7 +76,6 @@ visualize           visualize mutational signatures identified in tumors
 `cancersig profile snv` [options]:
 ```
 -i {file}           input VCF file (required)
--g {file}           genotype format (default="GTR")
 -r {file}           path to genome reference (required)
 -o {file}           output snv feature file (required)
 --sample_id {id}    a sample id to be used as a column header in the output file (This will replace sample id from vcf header) (optional)
@@ -131,7 +130,7 @@ As this part is performed by third-party software, please check the original web
 ###### 2.1 SNV profiling
 
 `cancersig profile snv` will
-- scan the VCF file in the genotype field (default="GTR") for SNV changes on both strands
+- scan the VCF (or vcf.gz) file in the genotype field for SNV changes on both strands
 - then, use the genomic coordinates to look up the 5\' and 3\' base in the reference fasta (using samtools)
 - then, perform SNV profiling of the sample by counting number of SNVs in each category and divide it by total number of variants in the sample.
 
@@ -139,10 +138,10 @@ The sample id in the output feature file will be the same as sample id in the in
 
 Example run:
 ```
-cancersig profile snv -i input.vcf -r /path/to/reference.fa -o snv_feature.txt
+cancersig profile snv -i input.vcf.gz -r /path/to/reference.fa -o snv_feature.txt
 ```
 
-[Example SNV feature output](./example/output_snv_feature.txt)
+[Example SNV feature output](./example/output_snv_feature.txt) from [Example SNV input.vcf.gz](./cancersig/profile/test/data/snv_profiler/SNVProfiler/test_profile_3/input.vcf.gz)
 
 ###### 2.2 SV profiling
 
@@ -155,10 +154,12 @@ The sample id in the output feature file will be the same as sample id in the in
 
 Example run:
 ```
-cancersig profile sv -i input.vcf -o sv_feature.txt
+cancersig profile sv -i gunzip input.vcf -o sv_feature.txt
 ```
 
-[Example SV feature output](./example/output_sv_feature.txt)
+Note: Currently, `cancersig profile sv` only accept uncompressed vcf file
+
+[Example SV feature output](./example/output_sv_feature.txt) from [Example SV input.vcf](./cancersig/profile/test/data/sv_profiler/SVProfiler/test_profile_1/input.vcf)
 
 ###### 2.3 MSI profiling
 
@@ -174,7 +175,7 @@ Example run:
 cancersig profile msi --raw_msisensor_report msisensor_out --raw_msisensor_somatic msisensor_out_somatic --sample_id example_sample -o msi_feature.txt
 ```
 
-[Example MSI feature output](./example/output_msi_feature.txt)
+[Example MSI feature output](./example/output_msi_feature.txt) from [Example msisensor_out](./cancersig/profile/test/data/msi_profiler/MSIProfiler/test_profile_1/raw_msisensor_out) and [Example msisensor_out_somatic](./cancersig/profile/test/data/msi_profiler/MSIProfiler/test_profile_1/raw_msisensor_out_somatic)
 
 ###### 2.4 Merge profile
 
@@ -191,7 +192,7 @@ Example run for mergeing certain profile types (SV and SNV in this case):
 cancersig profile merge -i /path/to/first/dir,/path/to/second/dir -o merged_feature.txt --profile_types SNV,SV
 ```
 
-[Example merged feature file](./example/output_merged_feature.txt)
+[Example merged feature file](./example/output_merged_feature.txt) from example input directories -i [/path1](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/SNV/cancer1),[/path2](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/SNV/cancer2),[/path3](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/SV/cancer1),[/path4](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/SV/cancer2),[/path5](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/MSI/cancer1),[/path6](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/MSI/cancer2)
 
 ## Examples and details - Step 3 Deciphering mutational signatures
 
@@ -205,8 +206,9 @@ cancersig signature decipher --mutation_profile merged_mutational_profile.txt --
 ```
 
 Example output:
-- [Example of signature probabilities (4 signatures)](./example/output_deciphered_4_signatures.txt)
-- [Example of deciphered signatures (4 signatures)](./example/output_deciphered_4_signatures.pdf)
+- [Example of signature probabilities (2 signatures)](./example/output_deciphered_2_processes.txt)
+- [Example of deciphered signatures (2 signatures)](./example/output_deciphered_2_processes.pdf)
+from [Example input mutation_profile](./example/output_merged_feature.txt)
 
 ## Example and details - Step 4 Visualizing profile
 
@@ -220,6 +222,8 @@ Example run:
 ```
 cancersig signature visualize --mutation_profile merged_mutational_profile.txt --signatures_probabilities signatures_probabilities.txt --output_dir /path/to/output/dir
 ```
+
+Example cancersig profile of [sample1](./example/example_sample1_cancersig_profile.pdf),[sample2](./example/example_sample2_cancersig_profile.pdf),[sample3](./example/example_sample3_cancersig_profile.pdf),[sample4](./example/example_sample4_cancersig_profile.pdf) from input [mutation_profile](./example/output_merged_feature.txt) and [signatures_probabilities](./example/output_deciphered_2_processes.txt)
 
 ## Contact
 
