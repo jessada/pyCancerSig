@@ -1,7 +1,7 @@
-variant type	variant subgroup	feature id	example_sample
-MSI	A	A	2
+variant type	variant subgroup	feature id	sample3
+MSI	A	A	0
 MSI	C	C	0
-MSI	AC	AC	1
+MSI	AC	AC	0
 MSI	AG	AG	0
 MSI	AT	AT	0
 MSI	CG	CG	0

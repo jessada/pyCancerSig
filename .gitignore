@@ -106,3 +106,6 @@ venv.bak/
 # nextflow
 .nextflow*
 work/
+
+# custom
+*.pls_del

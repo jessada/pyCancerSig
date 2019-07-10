@@ -1,0 +1,302 @@
+import sys
+import argparse
+from cancersig.app.profile import app_profile_snv
+from cancersig.app.profile import app_profile_sv
+from cancersig.app.profile import app_profile_msi
+from cancersig.app.profile import app_profile_merge
+from cancersig.app.signature import app_signature_decipher
+from cancersig.app.signature import app_signature_visualize
+from cancersig.profile.features import PROFILE_TYPES
+from cancersig.signature.decipher import DEFAULT_MIN_SIGNATURES
+from cancersig.signature.decipher import DEFAULT_MAX_SIGNATURES
+
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help(sys.stderr)
+        sys.exit(2)
+
+class SplitAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values.split(','))
+
+
+PROG = "cancersig"
+
+argp = MyParser(prog="cancersig",
+                usage=PROG+" <command> [options]",
+                description="pyCancerSig: subclassifying human cancer with comprehensive single nucleotide, structural and microsattelite mutation signature deconstruction from whole genome sequencing")
+
+# Add main sub-commands
+arg_subp = argp.add_subparsers(title="commands",
+                               help='for more information, specify -h after a command',
+                               dest="command_action"
+                               )
+
+
+## ******************************************** cancersig profile **********************************************************
+arg_profile_command = arg_subp.add_parser('profile',
+                                          usage=PROG+" profile <profile type> [options]",
+                                          help='extract mutational profile')
+# Add sub-commands for profiling
+arg_profile_command_subp = arg_profile_command.add_subparsers(title="profile types",
+                                                              help='for more information, specify -h after a command',
+                                                              dest="profile_action",
+                                                              )
+
+
+# ******************************************** cancersig profile snv **********************************************************
+arg_profile_snv_subcommand = arg_profile_command_subp.add_parser('snv',
+                                                                 usage=PROG+" profile snv [options]",
+                                                                 help='extract SNV mutational profile',
+                                                                 )
+arg_profile_snv_required_group = arg_profile_snv_subcommand.add_argument_group('required arguments')
+arg_profile_snv_required_group.add_argument('-i',
+                                            '--input_vcf_file',
+                                            dest='profile_snv_input_vcf_file',
+                                            metavar="{FILE}",
+                                            help='an input VCF file',
+                                            required=True,
+                                            )
+arg_profile_snv_required_group.add_argument('-o',
+                                            '--output_file',
+                                            dest='profile_snv_output_file',
+                                            metavar="{FILE}",
+                                            help='an output snv feature file',
+                                            required=True,
+                                            )
+arg_profile_snv_required_group.add_argument('-r',
+                                            '--reference',
+                                            dest='profile_snv_ref_genome_file',
+                                            metavar="{FILE}",
+                                            help='path to genome reference',
+                                            required=True,
+                                            )
+arg_profile_snv_subcommand.add_argument('-g',
+                                        '--gt_format',
+                                        dest='profile_snv_gt_format',
+                                        metavar="{GT_FORMAT}",
+                                        help='genotype format (default="GTR")',
+                                        default="GTR",
+                                        )
+arg_profile_snv_subcommand.add_argument('--sample_id',
+                                        dest='profile_snv_sample_id',
+                                        metavar="{ID}",
+                                        help='a sample id to be used as a column header in the output file (This will replace sample id from vcf header)',
+                                        default=None,
+                                        )
+
+
+# ******************************************** cancersig profile sv **********************************************************
+arg_profile_sv_subcommand = arg_profile_command_subp.add_parser('sv',
+                                                                usage=PROG+" profile sv [options]",
+                                                                help='extract SV mutational profile')
+arg_profile_sv_required_group = arg_profile_sv_subcommand.add_argument_group('required arguments')
+arg_profile_sv_required_group.add_argument('-i',
+                                           '--input_vcf_file',
+                                           dest='profile_sv_input_vcf_file',
+                                           metavar="{FILE}",
+                                           help='an input VCF file',
+                                           required=True,
+                                           )
+arg_profile_sv_required_group.add_argument('-o',
+                                           '--output_file',
+                                           dest='profile_sv_output_file',
+                                           metavar="{FILE}",
+                                           help='an output sv feature file',
+                                           required=True,
+                                           )
+arg_profile_sv_subcommand.add_argument('--sample_id',
+                                       dest='profile_sv_sample_id',
+                                       metavar="{ID}",
+                                       help='a sample id to be used as a column header in the output file (This will replace sample id from vcf header)',
+                                       default=None,
+                                       )
+
+
+# ******************************************** cancersig profile msi **********************************************************
+arg_profile_msi_subcommand = arg_profile_command_subp.add_parser('msi',
+                                                                 usage=PROG+" profile msi [options]",
+                                                                 help='extract MSI mutational profile')
+arg_profile_msi_required_group = arg_profile_msi_subcommand.add_argument_group('required arguments')
+arg_profile_msi_required_group.add_argument('--raw_msisensor_out',
+                                            dest='profile_msi_raw_msisensor_out',
+                                            metavar="{FILE}",
+                                            help='an output from "msisensor msi" that have only msi score (percentage of MSI loci)',
+                                            required=True,
+                                            )
+arg_profile_msi_required_group.add_argument('--raw_msisensor_out_somatic',
+                                            dest='profile_msi_raw_msisensor_out_somatic',
+                                            metavar="{FILE}",
+                                            help='an output from "msisensor msi" that have suffix "_somatic"',
+                                            required=True,
+                                            )
+arg_profile_msi_required_group.add_argument('--sample_id',
+                                            dest='profile_msi_sample_id',
+                                            metavar="{ID}",
+                                            help='a sample id to be used as a column header in the output file',
+                                            required=True,
+                                            )
+arg_profile_msi_required_group.add_argument('-o',
+                                            '--output_file',
+                                            dest='profile_msi_output_file',
+                                            metavar="{FILE}",
+                                            help='an output msi feature file',
+                                            required=True,
+                                            )
+
+
+# ******************************************** cancersig profile merge **********************************************************
+arg_profile_merge_subcommand = arg_profile_command_subp.add_parser('merge',
+                                                                   usage=PROG+" profile merge [options]",
+                                                                   help='merge mutational profiles into a single profile')
+arg_profile_merge_required_group = arg_profile_merge_subcommand.add_argument_group('required arguments')
+arg_profile_merge_required_group.add_argument('--input_dirs',
+                                              '-i',
+                                              dest='profile_merge_input_dirs',
+                                              metavar="{DIRECTORIES}",
+                                              help='comma-separated directories containing feature files to be merged',
+                                              required=True,
+                                              )
+arg_profile_merge_required_group.add_argument('-o',
+                                              '--output_file',
+                                              dest='profile_merge_output_file',
+                                              metavar="{FILE}",
+                                              help='an output merged feature file',
+                                              required=True,
+                                              )
+arg_profile_merge_subcommand.add_argument('--profile_types',
+                                          dest='profile_merge_profile_types',
+                                          metavar="["+",".join(PROFILE_TYPES)+"]",
+                                          action=SplitAction,
+                                          help='profile types to be merged, (default: '+",".join(PROFILE_TYPES)+')',
+                                          default=PROFILE_TYPES,
+                                          )
+
+## ******************************************** cancersig signature **********************************************************
+arg_signature_command = arg_subp.add_parser('signature',
+                                            usage=PROG+" signature <subcommand> [options]",
+                                            help='decipher mutational cancer signature component and visualization from mutational profiles')
+# Add sub-commands 
+arg_signature_command_subp = arg_signature_command.add_subparsers(title="sub-command",
+                                                                  help='for more information, specify -h after a command',
+                                                                  dest="signature_action",
+                                                                  )
+
+
+## ******************************************** cancersig signature **********************************************************
+arg_signature_decipher_subcommand = arg_signature_command_subp.add_parser('decipher',
+                                                                          usage=PROG+" signature decipher [options]",
+                                                                          help='perform unsupervised learning model to find mutational signature components')
+arg_signature_decipher_required_group = arg_signature_decipher_subcommand.add_argument_group('required arguments')
+arg_signature_decipher_required_group.add_argument('--mutation_profiles',
+                                                   '-i',
+                                                   dest='signature_decipher_mutation_profiles',
+                                                   metavar="{FILE}",
+                                                   help='input mutation calalog to be deciphered',
+                                                   required=True,
+                                                   )
+arg_signature_decipher_required_group.add_argument('--output_prefix',
+                                                   '-o',
+                                                   dest='signature_decipher_output_prefix',
+                                                   metavar="{PREFIX}",
+                                                   help='output file prefix',
+                                                   required=True,
+                                                   )
+arg_signature_decipher_subcommand.add_argument('--min_signatures',
+                                               dest='signature_decipher_min_signatures',
+                                               type=int,
+                                               metavar="{N}",
+                                               help='minimum number of signatures to be deciphered (default: '+str(DEFAULT_MIN_SIGNATURES)+')',
+                                               default=DEFAULT_MIN_SIGNATURES,
+                                               )
+arg_signature_decipher_subcommand.add_argument('--max_signatures',
+                                               dest='signature_decipher_max_signatures',
+                                               type=int,
+                                               metavar="{N}",
+                                               help='maximum number of signatures to be deciphered (default: '+str(DEFAULT_MAX_SIGNATURES)+')',
+                                               default=DEFAULT_MAX_SIGNATURES,
+                                               )
+
+## ******************************************** cancersig visualize **********************************************************
+arg_signature_visualize_subcommand = arg_signature_command_subp.add_parser('visualize',
+                                                                           usage=PROG+" signature visualize [options]",
+                                                                           help='visualize mutational signatures identified in tumors')
+arg_signature_visualize_required_group = arg_signature_visualize_subcommand.add_argument_group('required arguments')
+arg_signature_visualize_required_group.add_argument('--mutation_profiles',
+                                                    '-i',
+                                                    dest='signature_visualize_mutation_profiles',
+                                                    metavar="{FILE}",
+                                                    help='input mutation calalog to be visualized',
+                                                    required=True,
+                                                    )
+arg_signature_visualize_required_group.add_argument('--signatures_probabilities',
+                                                    dest='signature_visualize_signatures_probabilities',
+                                                    metavar="{FILE}",
+                                                    help='input file with deciphered cancer signatures probabilities',
+                                                    required=True,
+                                                    )
+arg_signature_visualize_required_group.add_argument('--output_dir',
+                                                    '-o',
+                                                    dest='signature_visualize_output_dir',
+                                                    metavar="{DIR}",
+                                                    help='output directory',
+                                                    required=True,
+                                                    )
+
+# ******************************************** parsing command line arguments and executing **********************************************************
+args = argp.parse_args()
+
+if args.command_action == "profile":
+    if args.profile_action == "snv":
+        app_profile_snv(input_vcf_file=args.profile_snv_input_vcf_file,
+                        ref_genome_file=args.profile_snv_ref_genome_file,
+                        output_file=args.profile_snv_output_file,
+                        gt_format=args.profile_snv_gt_format,
+                        sample_id=args.profile_snv_sample_id,
+                        )
+    elif args.profile_action == "sv":
+        app_profile_sv(input_vcf_file=args.profile_sv_input_vcf_file,
+                       output_file=args.profile_sv_output_file,
+                       sample_id=args.profile_sv_sample_id,
+                       )
+    elif args.profile_action == "msi":
+        app_profile_msi(raw_msisensor_out=args.profile_msi_raw_msisensor_out,
+                        raw_msisensor_out_somatic=args.profile_msi_raw_msisensor_out_somatic,
+                        sample_id=args.profile_msi_sample_id,
+                        output_file=args.profile_msi_output_file,
+                        )
+    elif args.profile_action == "merge":
+        # validate profile types
+        for profile_type in args.profile_merge_profile_types:
+            if profile_type not in PROFILE_TYPES:
+                print("error: argument --profile_types: invalid choice: '"+profile_type+"' (choose from "+", ".join(PROFILE_TYPES)+")", file=sys.stderr)
+                arg_profile_merge_subcommand.print_help(sys.stderr)
+                sys.exit(2)
+        app_profile_merge(input_dirs=args.profile_merge_input_dirs,
+                          output_file=args.profile_merge_output_file,
+                          profile_types=args.profile_merge_profile_types,
+                          )
+    else:
+        print("error : please indicate correct profiling command", file=sys.stderr)
+        arg_profile_command.print_help(sys.stderr)
+        sys.exit(2)
+elif args.command_action == "signature":
+    if args.signature_action == "decipher":
+        app_signature_decipher(mutation_profiles=args.signature_decipher_mutation_profiles,
+                               output_prefix=args.signature_decipher_output_prefix,
+                               min_signatures=args.signature_decipher_min_signatures,
+                               max_signatures=args.signature_decipher_max_signatures,
+                               )
+    elif args.signature_action == "visualize":
+        app_signature_visualize(mutation_profiles=args.signature_visualize_mutation_profiles,
+                                signatures_probabilities=args.signature_visualize_signatures_probabilities,
+                                output_dir=args.signature_visualize_output_dir,
+                                )
+    else:
+        print("error : please indicate correct signature command", file=sys.stderr)
+        arg_signature_command.print_help(sys.stderr)
+        sys.exit(2)
+else:
+    argp.print_help(sys.stderr)
+    sys.exit(2)

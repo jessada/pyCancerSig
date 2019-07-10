@@ -1,4 +1,4 @@
-variant type	variant subgroup	feature id	example_sample_vcf_header
+variant type	variant subgroup	feature id	example_sample_from_argument
 Translocation	log10_2_3	BND_log10_2_3	0
 Translocation	log10_3_4	BND_log10_3_4	0
 Translocation	log10_4_5	BND_log10_4_5	0
