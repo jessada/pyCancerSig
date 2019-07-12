@@ -1,8 +1,7 @@
 # pyCancerSig
 # A python package for deciphering cancer signatures.
 
-Comprehensive cancer signatures with a main workflow in nextflow, and reusable modules written in python.
-Integrate SNV, SV and MSI profiles in signatures decomposed using non-negative matrix factorisation, and produce production ready pdf reports. 
+Comprehensive cancer signatures with reusable modules written in python, integrating SNV, SV and MSI profiles in signatures decomposed using non-negative matrix factorisation, and produce production ready pdf reports.
 
 ## Installation
 
@@ -198,7 +197,7 @@ cancersig profile merge -i /path/to/first/dir,/path/to/second/dir -o merged_feat
 
 `cancersig signature decipher` will
 - load mutational matrix profile
-- identify underlying mutational signatures following EXPERIMENTAL PROCEDURES from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3588146/pdf/main.pdf
+- identify underlying mutational signatures following EXPERIMENTAL PROCEDURES from [Alexandrov et al., Cell Report, 2013](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3588146/pdf/main.pdf)
 
 Example run:
 ```
