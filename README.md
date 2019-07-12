@@ -28,6 +28,10 @@ source ~/.bashrc      # or logout and re-login
 
 The workflow consists of 4 steps
 
+<p align="center">
+  <img width="900" height="550" src="./figures/workflow.png">
+</p>
+
 1. Data preprocessing - The purpose of this step is to generate list of variants and/or information related. This step has to be performed by third party software.
     - Single nucleotide variant (SNV) - recommending MuTect2, otherwise Muse, VarScan2, or SomaticSniper.
     - Structural variant (SV) - dependency on FindSV

@@ -184,7 +184,7 @@ arg_signature_command_subp = arg_signature_command.add_subparsers(title="sub-com
                                                                   )
 
 
-## ******************************************** cancersig signature **********************************************************
+## ******************************************** cancersig signature decipher **********************************************************
 arg_signature_decipher_subcommand = arg_signature_command_subp.add_parser('decipher',
                                                                           usage=PROG+" signature decipher [options]",
                                                                           help='perform unsupervised learning model to find mutational signature components')
@@ -218,7 +218,7 @@ arg_signature_decipher_subcommand.add_argument('--max_signatures',
                                                default=DEFAULT_MAX_SIGNATURES,
                                                )
 
-## ******************************************** cancersig visualize **********************************************************
+## ******************************************** cancersig signature visualize **********************************************************
 arg_signature_visualize_subcommand = arg_signature_command_subp.add_parser('visualize',
                                                                            usage=PROG+" signature visualize [options]",
                                                                            help='visualize mutational signatures identified in tumors')
