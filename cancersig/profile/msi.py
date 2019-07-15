@@ -7,6 +7,8 @@ from cancersig.profile.features import VARIANT_TYPE
 from cancersig.profile.features import VARIANT_SUBGROUP
 from cancersig.profile.features import FEATURE_ID
 from cancersig.profile.features import FEATURE_QUANTITY
+from cancersig.profile.features import REPEAT_UNIT_LENGTH_4
+from cancersig.profile.features import REPEAT_UNIT_LENGTH_5
 
 MSI_H_CUTOFF = 3.5
 
