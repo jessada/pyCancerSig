@@ -69,3 +69,64 @@ class TestProfileMerger(Tester):
         exp_output_file = join_path(self.data_dir,
                                     "exp_output_file")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in ProfileMerger.merge()')
+
+    def test_merge_3(self):
+        """ test if a whole profile type of one sample is missing (sample3 SNV in this case) """
+
+        self.init_test(self.current_func_name)
+
+        input_dirs = []
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SNV"),
+                                    "cancer1"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SNV"),
+                                    "cancer2"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SV"),
+                                    "cancer1"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SV"),
+                                    "cancer2"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "MSI"),
+                                    "cancer1"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "MSI"),
+                                    "cancer2"))
+        output_file = join_path(self.working_dir,
+                                self.current_func_name+".txt")
+        self.__profile_merger.merge(input_dirs, output_file)
+        exp_output_file = join_path(self.data_dir,
+                                    "exp_output_file")
+        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in ProfileMerger.merge()')
+
+    def test_merge_4(self):
+        """ test with an unknown feature in a profile (sample4 MSI with B repeat, instead of A) """
+
+        self.init_test(self.current_func_name)
+
+        input_dirs = []
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SNV"),
+                                    "cancer1"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SNV"),
+                                    "cancer2"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SV"),
+                                    "cancer1"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "SV"),
+                                    "cancer2"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "MSI"),
+                                    "cancer1"))
+        input_dirs.append(join_path(join_path(self.data_dir,
+                                              "MSI"),
+                                    "cancer2"))
+        output_file = join_path(self.working_dir,
+                                self.current_func_name+".txt")
+        with self.assertRaises(ValueError) as cm:
+            self.__profile_merger.merge(input_dirs, output_file)
+            self.fail("ProfileMerger.merge() cannot handle unknown feature")
