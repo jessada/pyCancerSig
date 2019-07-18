@@ -76,8 +76,8 @@ SV_EVENT_TYPE_LIST.append(SV_EVENT_TYPE_DUP)
 SV_EVENT_TYPE_INV = "INV"
 SV_VAR_TYPE_INV = "Inversion"
 SV_EVENT_TYPE_LIST.append(SV_EVENT_TYPE_INV)
-SV_VAR_SUBGROUP_WHOLE_CHROM = "whole_chrom"
-SV_VAR_SUBGROUP_INTER_CHROM = "inter_chrom"
+SV_VAR_SUBGROUP_WHOLE_CHROM = "_whole_chrom"
+SV_VAR_SUBGROUP_INTER_CHROM = "_inter_chrom"
 SV_LEN_LOG10LIST = []
 SV_LEN_LOG10_2_3 = "log10_2_3"
 SV_LEN_LOG10LIST.append(SV_LEN_LOG10_2_3)
@@ -121,7 +121,10 @@ def __init_sv_features_template():
                 var_subgroup = SV_VAR_SUBGROUP_INTER_CHROM
             else:
                 var_subgroup = len_log10
-            feature_id = event_type + "_" + var_subgroup
+            if var_subgroup[0] != "_":
+                feature_id = event_type + "_" + var_subgroup
+            else:
+                feature_id = event_type + var_subgroup
             features_template[feature_id] = {}
             features_template[feature_id][VARIANT_TYPE] = var_type
             features_template[feature_id][VARIANT_SUBGROUP] = var_subgroup
@@ -173,13 +176,13 @@ def __init_msi_features_template():
                 continue
             if reverse_complement in features_map:
                 features_map[reverse_complement].append(feature)
-                features_hash [feature] = reverse_complement
+                features_hash[feature] = reverse_complement + "_repeat"
                 continue
             rotated_seq_found = False
             for rotated_seq in __get_rotated_sequences(feature):
                 if rotated_seq in features_map:
                     features_map[rotated_seq].append(feature)
-                    features_hash [feature] = rotated_seq
+                    features_hash[feature] = rotated_seq + "_repeat"
                     rotated_seq_found = True
                     break
             if rotated_seq_found:
@@ -187,13 +190,14 @@ def __init_msi_features_template():
             for rotated_seq in __get_rotated_sequences(reverse_complement):
                 if rotated_seq in features_map:
                     features_map[rotated_seq].append(feature)
-                    features_hash [feature] = rotated_seq
+                    features_hash[feature] = rotated_seq + "_repeat"
                     rotated_seq_found = True
                     break
             if rotated_seq_found:
                 continue
+            # new feature
             features_map[feature].append(feature)
-            features_hash[feature] = feature
+            features_hash[feature] = feature + "_repeat"
     features_map[REPEAT_UNIT_LENGTH_4] = []
     features_map[REPEAT_UNIT_LENGTH_5] = []
 
@@ -201,14 +205,17 @@ def __init_msi_features_template():
     for uniq_feature in features_map:
         if uniq_feature == REPEAT_UNIT_LENGTH_4:
             var_subgroup = "Length_4"
+            feature_id = uniq_feature
         elif uniq_feature == REPEAT_UNIT_LENGTH_5:
             var_subgroup = "Length_5"
+            feature_id = uniq_feature
         else:
-            var_subgroup = uniq_feature
-        features_template[uniq_feature] = {}
-        features_template[uniq_feature][VARIANT_TYPE] = "MSI"
-        features_template[uniq_feature][VARIANT_SUBGROUP] = var_subgroup
-        features_template[uniq_feature][FEATURE_QUANTITY] = 0
+            var_subgroup = uniq_feature + "_repeat"
+            feature_id = uniq_feature + "_repeat"
+        features_template[feature_id] = {}
+        features_template[feature_id][VARIANT_TYPE] = "MSI"
+        features_template[feature_id][VARIANT_SUBGROUP] = var_subgroup
+        features_template[feature_id][FEATURE_QUANTITY] = 0
     return features_template, features_hash
 
 MSI_FEATURES_TEMPLATE, MSI_FEATURES_HASH = __init_msi_features_template()

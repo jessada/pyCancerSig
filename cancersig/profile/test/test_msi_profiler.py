@@ -14,8 +14,7 @@ class TestMSIProfiler(Tester):
                                               )
 
     def setUp(self):
-        self.__msi_profiler = MSIProfiler()
-        self.__msi_profiler.debug_mode = True
+        self.__msi_profiler = MSIProfiler(debug_mode=True)
 
     def test_profile_1(self):
         """ test extracting msi features for an MSI positive sample """
