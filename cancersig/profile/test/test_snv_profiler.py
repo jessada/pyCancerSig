@@ -65,7 +65,7 @@ class TestSNVProfiler(Tester):
 
     @unittest.skipUnless(ENABLE_CPU_INTENSIVE_UNITTEST, "This test was disabled due to its computational burden, you can enaable it in cancersig.config")
     def test_profile_3(self):
-        """ test simple vcf """
+        """ test simple vcf, a mockup one with as litle information as possible """
 
         self.init_test(self.current_func_name)
         input_vcf_file = join_path(self.data_dir,
@@ -86,21 +86,25 @@ class TestSNVProfiler(Tester):
         self.assertTrue(filecmp.cmp(output_event_file, exp_output_event_file), 'Malfunction in SNVProfiler.profile()')
         self.assertTrue(filecmp.cmp(output_feature_file, exp_output_feature_file), 'Malfunction in SNVProfiler.profile()')
 
-    @unittest.skip("No real life data to be tested for SNV called by MuTect2")
+    @unittest.skipUnless(ENABLE_CPU_INTENSIVE_UNITTEST, "This test was disabled due to its computational burden, you can enaable it in cancersig.config")
     def test_profile_4(self):
-        """ test extracting snv features with custom GT field """
+        """ test a vcf with other non-standard chromosomes """
 
         self.init_test(self.current_func_name)
-#        input_vcf_file = join_path(self.data_dir,
-#                                   "input.vcf")
-#        ref_genome_file = join_path(self.data_dir,
-#                                    "ref_genome.fa")
-#        output_file = join_path(self.working_dir,
-#                                self.current_func_name+".txt")
-#        self.__snv_profiler.profile(input_vcf_file,
-#                                             ref_genome_file,
-#                                             output_file,
-#                                             )
-#        exp_output_file = join_path(self.data_dir,
-#                                    "exp_output_file")
-#        self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SNVProfiler.profile()')
+        input_vcf_file = join_path(self.data_dir,
+                                   "input.vcf.gz")
+        ref_genome_file = join_path(self.data_dir,
+                                    "ref_genome.fa")
+        output_feature_file = join_path(self.working_dir,
+                                        self.current_func_name+".txt")
+        output_event_file = output_feature_file + ".event"
+        self.__snv_profiler.profile(input_vcf_file,
+                                    ref_genome_file,
+                                    output_feature_file,
+                                    )
+        exp_output_feature_file = join_path(self.data_dir,
+                                             "exp_output_feature_file")
+        exp_output_event_file = join_path(self.data_dir,
+                                          "exp_output_event_file")
+        self.assertTrue(filecmp.cmp(output_event_file, exp_output_event_file), 'Malfunction in SNVProfiler.profile()')
+        self.assertTrue(filecmp.cmp(output_feature_file, exp_output_feature_file), 'Malfunction in SNVProfiler.profile()')

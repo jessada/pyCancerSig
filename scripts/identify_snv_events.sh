@@ -103,6 +103,7 @@ cmd+=" $input_vcf"
 cmd+=" | vt decompose -s -"
 cmd+=" | grep -Pv \"\t\*\t\""
 cmd+=" | grep -v \"\\x3b\""
+cmd+=" | grep -v \"^M\""
 cmd+=" > $tmp_decompose"
 eval_cmd "$cmd"
 
