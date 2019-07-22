@@ -363,6 +363,7 @@ class Visualizer(pyCancerSigBase):
                                sample_id,
                                sample_vars_dict,
                                normalized_weights,
+                               sample_context_ratio,
                                ):
         sample_txt = sample_id
         figure_file = join_path(self.figures_dir, sample_id+"_cancersig_profile.pdf")
@@ -375,12 +376,15 @@ class Visualizer(pyCancerSigBase):
         pdf_file.savefig(bbox_inches='tight')
         # Plot sample profile after reconstructed
         reconstructed_tumor_profile = self.__plot_reconstructed_profile(sample_id,
-                                                                  normalized_weights,
-                                                                  y_max=y_max)
+                                                                        normalized_weights,
+                                                                        y_max=y_max)
         pdf_file.savefig(bbox_inches='tight')
         # Plot the difference between the reconstructed and the normal profile
+        reconstruction_error = np.linalg.norm(sample_context_ratio - reconstructed_tumor_profile)
+        self.__reconstruction_errors[sample_id] = reconstruction_error
         self.__plot_difference(sample_id,
                                reconstructed_tumor_profile,
+                               reconstruction_error,
                                sample_vars_dict,
                                y_max=y_max)
         pdf_file.savefig(bbox_inches='tight')
@@ -388,6 +392,7 @@ class Visualizer(pyCancerSigBase):
         pdf_file.close()
         plt.clf()
         plt.close('all')
+        return reconstructed_tumor_profile
 
     def __plot_sample_profile(self, sample_id, sample_vars_dict):
         """
@@ -415,6 +420,7 @@ class Visualizer(pyCancerSigBase):
     def __plot_difference(self,
                           sample_id,
                           reconstructed_tumor_profile,
+                          reconstruction_error,
                           sample_vars_dict,
                           y_max):
         """Plot the difference between the original and reconstructed tumor profile."""
@@ -428,6 +434,7 @@ class Visualizer(pyCancerSigBase):
                 difference_fraction = original_fraction - reconstructed_fraction
                 differnce_vars_dict[variant_type][variant_info] = difference_fraction
         title = 'Difference Between Original and Reconstructed Tumor Profile for ' + sample_id
+        title += ' (Frobenius norm: {:.4f})'.format(reconstruction_error)
         return plot_distribution(title, profile_dict=differnce_vars_dict, y_max=y_max)
 
     def visualize(self,
@@ -450,6 +457,7 @@ class Visualizer(pyCancerSigBase):
         else:
             self.__sample_phenotype_df = None
         self.__samples_normalized_weights = OrderedDict()
+        self.__reconstruction_errors = OrderedDict()
         if not os.path.exists(self.figures_dir):
             os.makedirs(self.figures_dir)
         # perform the actual work, finding underlying cancer processes for each sample
@@ -478,6 +486,7 @@ class Visualizer(pyCancerSigBase):
             self.__save_weights_figures(sample_id,
                                         sample_vars_dict,
                                         normalized_weights,
+                                        sample_context_ratio,
                                         )
 
     def __write_weights(self, samples_weights):
@@ -499,6 +508,11 @@ class Visualizer(pyCancerSigBase):
             content = "Other signatures"
             content += "\t" + "\t".join(map(lambda x: "{:14.12f}".format(1-sum(samples_normalized_weights[x])),
                                             samples_normalized_weights,
+                                            ))
+            f_w.write(content+"\n")
+            content = "Frobenius norm"
+            content += "\t" + "\t".join(map(lambda x: "{:14.12f}".format(self.__reconstruction_errors[x]),
+                                            self.__reconstruction_errors,
                                             ))
             f_w.write(content+"\n")
         self.info("")
