@@ -42,7 +42,7 @@ class TestProfileMerger(Tester):
                                 self.current_func_name+".txt")
         self.__profile_merger.merge(input_dirs, output_file)
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_merged_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in ProfileMerger.merge()')
 
     def test_merge_2(self):
@@ -67,7 +67,7 @@ class TestProfileMerger(Tester):
                                 self.current_func_name+".txt")
         self.__profile_merger.merge(input_dirs, output_file, ["SV"])
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_merged_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in ProfileMerger.merge()')
 
     def test_merge_3(self):
@@ -98,7 +98,7 @@ class TestProfileMerger(Tester):
                                 self.current_func_name+".txt")
         self.__profile_merger.merge(input_dirs, output_file)
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_merged_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in ProfileMerger.merge()')
 
     def test_merge_4(self):

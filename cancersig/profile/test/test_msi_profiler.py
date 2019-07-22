@@ -33,7 +33,7 @@ class TestMSIProfiler(Tester):
                                     output_file,
                                     )
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_msi_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.profile()')
 
     def test_profile_2(self):
@@ -53,6 +53,6 @@ class TestMSIProfiler(Tester):
                                     output_file,
                                     )
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_msi_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in MSIProfiler.profile()')
 

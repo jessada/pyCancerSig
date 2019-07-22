@@ -27,7 +27,7 @@ class TestSVProfiler(Tester):
                                    output_file,
                                    )
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_sv_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SVProfiler.profile()')
 
     def test_profile_2(self):
@@ -43,5 +43,5 @@ class TestSVProfiler(Tester):
                                    sample_id="example_sample_from_argument",
                                    )
         exp_output_file = join_path(self.data_dir,
-                                    "exp_output_file")
+                                    "exp_sv_feature.txt")
         self.assertTrue(filecmp.cmp(output_file, exp_output_file), 'Malfunction in SVProfiler.profile()')

@@ -210,7 +210,7 @@ def __init_msi_features_template():
             var_subgroup = "Length_5"
             feature_id = uniq_feature
         else:
-            var_subgroup = uniq_feature + "_repeat"
+            var_subgroup = uniq_feature
             feature_id = uniq_feature + "_repeat"
         features_template[feature_id] = {}
         features_template[feature_id][VARIANT_TYPE] = "MSI"

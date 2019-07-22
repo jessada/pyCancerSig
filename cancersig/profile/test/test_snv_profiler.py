@@ -33,9 +33,9 @@ class TestSNVProfiler(Tester):
                                     output_feature_file,
                                     )
         exp_output_feature_file = join_path(self.data_dir,
-                                            "exp_output_feature_file")
+                                            "exp_snv_feature.txt")
         exp_output_event_file = join_path(self.data_dir,
-                                          "exp_output_event_file")
+                                          "exp_event.txt")
         self.assertTrue(filecmp.cmp(output_event_file, exp_output_event_file), 'Malfunction in SNVProfiler.profile()')
         self.assertTrue(filecmp.cmp(output_feature_file, exp_output_feature_file), 'Malfunction in SNVProfiler.profile()')
 
@@ -57,9 +57,9 @@ class TestSNVProfiler(Tester):
                                     sample_id="example_sample_id_from_argument",
                                     )
         exp_output_feature_file = join_path(self.data_dir,
-                                             "exp_output_feature_file")
+                                            "exp_snv_feature.txt")
         exp_output_event_file = join_path(self.data_dir,
-                                          "exp_output_event_file")
+                                          "exp_event.txt")
         self.assertTrue(filecmp.cmp(output_event_file, exp_output_event_file), 'Malfunction in SNVProfiler.profile()')
         self.assertTrue(filecmp.cmp(output_feature_file, exp_output_feature_file), 'Malfunction in SNVProfiler.profile()')
 
@@ -80,9 +80,9 @@ class TestSNVProfiler(Tester):
                                     output_feature_file,
                                     )
         exp_output_feature_file = join_path(self.data_dir,
-                                             "exp_output_feature_file")
+                                            "exp_snv_feature.txt")
         exp_output_event_file = join_path(self.data_dir,
-                                          "exp_output_event_file")
+                                          "exp_event.txt")
         self.assertTrue(filecmp.cmp(output_event_file, exp_output_event_file), 'Malfunction in SNVProfiler.profile()')
         self.assertTrue(filecmp.cmp(output_feature_file, exp_output_feature_file), 'Malfunction in SNVProfiler.profile()')
 
@@ -103,8 +103,8 @@ class TestSNVProfiler(Tester):
                                     output_feature_file,
                                     )
         exp_output_feature_file = join_path(self.data_dir,
-                                             "exp_output_feature_file")
+                                            "exp_snv_feature.txt")
         exp_output_event_file = join_path(self.data_dir,
-                                          "exp_output_event_file")
+                                          "exp_event.txt")
         self.assertTrue(filecmp.cmp(output_event_file, exp_output_event_file), 'Malfunction in SNVProfiler.profile()')
         self.assertTrue(filecmp.cmp(output_feature_file, exp_output_feature_file), 'Malfunction in SNVProfiler.profile()')

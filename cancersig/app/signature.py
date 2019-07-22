@@ -24,7 +24,7 @@ def app_signature_decipher(*args, **kwargs):
     optional_params = OrderedDict()
     optional_params['minimum number of signatures (--min_signatures)'] = min_signatures
     optional_params['maximum number of signatures (--max_signatures)'] = max_signatures
-    disp.show_config(app_description=APP_DECIPHER_SIGNATURE_DESCRIPTION,
+    disp.show_config(app_description=APP_SIGNATURE_DECIPHER_DESCRIPTION,
                      required_params=required_params,
                      optional_params=optional_params,
                      )
