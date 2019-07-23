@@ -20,5 +20,9 @@ setup(
     long_description=open('README.md').read(),
     install_requires=[
         "Biopython >= 1.72",
+        "pandas >= 0.23.4",
+        "matplotlib >= 3.0.2",
+        "scikit-learn >= 0.20.1",
+        "seaborn >= 0.9.0",
         ],
 )
