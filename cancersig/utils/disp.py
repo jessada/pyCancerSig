@@ -26,11 +26,11 @@ def disp_subheader(subheader_txt):
 
 def disp_param(param_name, param_value):
     logger.info(param_display_fmt.format(name=param_name+": ",
-                                           value=param_value))
+                                         value=param_value))
 
 def debug_param(param_name, param_value):
     logger.debug(param_display_fmt.format(name=param_name+": ",
-                                            value=param_value))
+                                          value=param_value))
 
 def disp_subparam(subparam_name, subparam_value):
     disp_param("  "+subparam_name, subparam_value)

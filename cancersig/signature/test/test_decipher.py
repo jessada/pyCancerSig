@@ -16,7 +16,7 @@ class TestCancerSigController(Tester):
 
     @unittest.skipUnless(ENABLE_CPU_INTENSIVE_UNITTEST, "This test was disabled due to its computational burden, you can enaable it in cancersig.config")
     def test_decipher_1(self):
-        """ test decipher complete profile (all profile type) with 2 signatures """
+        """ test decipher complete profile (all profile type) with 2 signatures and standard model parameters"""
 
         self.init_test(self.current_func_name)
         mutation_profiles = join_path(self.data_dir,
@@ -43,3 +43,25 @@ class TestCancerSigController(Tester):
                                                  min_signatures=2,
                                                  max_signatures=2,
                                                  )
+
+    def test_decipher_3(self):
+        """ test with parameters for just fast going through the model """
+
+        self.init_test(self.current_func_name)
+        mutation_profiles = join_path(self.data_dir,
+                                      "mutation_profiles.txt")
+        output_prefix = join_path(self.working_dir,
+                                  self.current_func_name)
+        cancersig_nmf_controller = CancerSigNMFController(debug_mode=True,
+                                                          verbose=True,
+                                                          resampling_size=100,
+                                                          convergence_cutoff=0.01,
+                                                          weak_signal_cutoff=0.00,
+                                                          max_model_solutions=5,
+                                                          )
+        cancersig_nmf_controller.decipher(mutation_profiles,
+                                          output_prefix,
+                                          min_signatures=2,
+                                          max_signatures=2,
+                                          save_signature_pdfs=False,
+                                          )
