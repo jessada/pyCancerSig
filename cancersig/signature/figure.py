@@ -70,6 +70,7 @@ def __plot_distribution(variant_type_counts,
                         ):
     """Plot substitution fraction per mutation context"""
     # Set up several subplots
+    plt.style.use('ggplot')
     n_variant_types = len(variant_type_counts)
     fig, axes = plt.subplots(nrows=1, ncols=n_variant_types, figsize=(20, 5.5))
     fig.canvas.set_window_title(title)
@@ -97,7 +98,10 @@ def __plot_distribution(variant_type_counts,
         # Standardize y-axis ranges across subplots (in percentage units)
         ax.set_ylim([y_min, y_max])
         vals = ax.get_yticks()
-        ax.set_yticklabels(['{:3.0f}%'.format(val * 100) for val in vals])
+        if (y_max - y_min) > 0.03:
+            ax.set_yticklabels(['{:3.0f}%'.format(val * 100) for val in vals])
+        else:
+            ax.set_yticklabels(['{:3.1f}%'.format(val * 100) for val in vals])
         plt.setp(ax.yaxis.get_majorticklabels(), color='k', fontweight='bold')
         graph += 1
         first_variant_idx += variant_count
