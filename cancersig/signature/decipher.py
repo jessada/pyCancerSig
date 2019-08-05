@@ -62,7 +62,7 @@ class DecipheredProcesses(pyCancerSigBase):
         sum_proc_sim = np.zeros(self.__n_signatures)
         iter_count = self.__iter_count
         for n_sig in range(self.__n_signatures):
-            sum_proc_sim[n_sig] = (sum(cosine_similarity(self.__est_p_all[:iter_count,:,n_sig], [self.processes[:,n_sig]]))/iter_count)[0]
+            sum_proc_sim[n_sig] = (sum(cosine_similarity(self.__est_p_all[:iter_count,:,n_sig], [self.__centroids[:,n_sig]]))/iter_count)[0]
         self.__avg_proc_sim = sum(sum_proc_sim)/self.__n_signatures
         return self.__avg_proc_sim
 
@@ -108,7 +108,7 @@ class DecipheredProcesses(pyCancerSigBase):
                 f_p.write(content+"\n")
         self.info()
         msg = "Deciphered processes with " + str(self.__n_signatures) + " signatures"
-        msg += " have been export to " + file_name
+        msg += " have been exported to " + file_name
         self.info(msg)
 
     def export_exposures_to_txt(self, file_name):
@@ -124,7 +124,7 @@ class DecipheredProcesses(pyCancerSigBase):
                 f_e.write(content+"\n")
         self.info()
         msg = "Deciphered exposures"
-        msg += " have been export to " + file_name
+        msg += " have been exported to " + file_name
         self.info(msg)
 
     def export_processes_to_pdf(self, file_name):
@@ -142,7 +142,7 @@ class DecipheredProcesses(pyCancerSigBase):
         plt.close('all')
         self.info()
         msg = "Deciphered processes with " + str(self.__n_signatures) + " signatures"
-        msg += " have been export to " + file_name
+        msg += " have been exported to " + file_name
         self.info(msg)
 
 
@@ -220,10 +220,15 @@ class CancerSigNMF(pyCancerSigBase):
         return bootstrapped_genomes
 
     def __remove_weak_signals(self, genomes_df):
-        """ removing mutation type with weak signals """
+        """
+        Removing mutation type with weak signals
+        """
+        # sum for each mutation type
         total_mutations = np.sum(genomes_df, axis=1)
+        # then divide the sum by the sum of them self (the sum of this result will be one)
         total_mutations = total_mutations/np.sum(total_mutations)
-        new_genomes = genomes_df.drop(total_mutations[total_mutations < self.weak_signal_cutoff].index)
+        self.__weak_signal_mutations = total_mutations[total_mutations < self.weak_signal_cutoff].index
+        new_genomes = genomes_df.drop(self.__weak_signal_mutations)
         scaled_genomes = new_genomes/np.sum(new_genomes)
         return scaled_genomes
 
@@ -234,7 +239,7 @@ class CancerSigNMF(pyCancerSigBase):
 
         return DecipheredProcesses object
         """
-        deproc = DecipheredProcesses(self.n_mutation_types,
+        deproc = DecipheredProcesses(genomes.shape[0],
                                      self.n_signatures,
                                      self.max_model_solutions,
                                      genomes.columns.values,
@@ -286,11 +291,11 @@ class CancerSigNMF(pyCancerSigBase):
             self.__input_error_n_exit(VARIANT_SUBGROUP)
         genomes_original_df = genomes_original_df.set_index(FEATURE_ID)
         self.__genomes_original_df = genomes_original_df.div(genomes_original_df.sum(axis=0))
+        self.__n_mutation_types, self.__n_genomes  = self.__genomes_original_df.shape
         strong_genomes_df = self.__remove_weak_signals(genomes_original_df)
-        self.__n_mutation_types, self.__n_genomes  = strong_genomes_df.shape
-        self.info("Removing mutation types that together account for less than " + str(DEFAULT_WEAK_SIGNAL_CUTOFF*100) + "% of mutations in all genomes")
+        self.info("Removing mutation types that together account for less than " + str(self.__weak_signaal_cutoff*100) + "% of mutations in all genomes")
         self.info("-- After removing --")
-        self.info("Total mutation types left: " + str(self.__n_mutation_types))
+        self.info("Total mutation types left: " + str(strong_genomes_df.shape[0]))
         self.info("Total number of samples: " + str(self.__n_genomes))
         return self.__extract_signatures(strong_genomes_df)
 
@@ -347,7 +352,7 @@ class CancerSigNMFController(CancerSigNMF):
                   [optimal_idx+0.2, optimal_reconstruction_error-ylim_gap*0.5]]
         patch = plt.Polygon(points, facecolor="lightcyan", linestyle=":")
         ax.add_patch(patch)
-        ax.annotate("optimal performance",
+        ax.annotate("optimal solution",
                     xy=(optimal_idx+0.3, optimal_reproducibility_rate+ylim_gap*0.5),
                     xytext=(optimal_idx+0.5, optimal_reproducibility_rate+ylim_gap*2.5),
                     va="center",
