@@ -42,9 +42,9 @@ class SNVProfiler(pyCancerSigBase):
             for line in f_i:
                 if line[0] == "#":
                     if sample_id is None:
-                        sample_id = line.strip().split("\t")[7]
+                        sample_id = line.strip().split("\t")[5]
                     continue
-                dummy, dummy, dummy, dummy, ref, alt, triplet, dummy = line.strip().split("\t")
+                dummy, dummy, ref, alt, triplet, dummy = line.strip().split("\t")
                 feature_id = SNV_FEATURES_HASH[ref][alt][triplet]
                 features_count[feature_id][FEATURE_QUANTITY] += 1
         with open(output_file, "w") as f_o:
