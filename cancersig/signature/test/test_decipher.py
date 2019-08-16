@@ -12,7 +12,7 @@ class TestCancerSigController(Tester):
                                                       )
 
     def setUp(self):
-        self.__cancersig_nmf_controller = CancerSigNMFController(debug_mode=True, verbose=True)
+        self.__cancersig_nmf_controller = CancerSigNMFController(debug_mode=True, verbose=False)
 
     @unittest.skipUnless(ENABLE_CPU_INTENSIVE_UNITTEST, "This test was disabled due to its computational burden, you can enaable it in cancersig.config")
     def test_decipher_1(self):

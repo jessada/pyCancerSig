@@ -130,6 +130,7 @@ class ProfileMerger(pyCancerSigBase):
         self.info("Validating and merging all input profiles")
         samples_to_be_merged = self.__validate_merged_profile(sample_profiles,
                                                               input_profile_types)
+        samples_to_be_merged.sort()
         with open(output_file, "w") as f_o:
             header = VARIANT_TYPE
             header += "\t" + VARIANT_SUBGROUP
