@@ -49,6 +49,18 @@ The workflow consists of 4 steps
 3. Deciphering mutational signatures - `cancersig signature decipher` - The purpose of this step is to use unsupervised learning model to find mutational signature components in the tumors.
 4. Visualizing profiles `cancersig signature visualize` - The purpose of this step is to visualize mutational signature component for each tumor.
 
+###### Example of a visualized pdf report of an SNV-only profile
+
+<p align="center">
+  <img width="900" height="1200" src="./figures/A_demo_sample_snv_only_profile.png">
+</p>
+
+###### Example of a visualized pdf report of a combined profile
+
+<p align="center">
+  <img width="900" height="1200" src="./figures/A_demo_sample_combined_profile.png">
+</p>
+
 ## Usage
 
 ```
