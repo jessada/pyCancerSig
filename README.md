@@ -237,7 +237,7 @@ Example run:
 cancersig signature visualize --mutation_profile merged_mutational_profile.txt --signatures_probabilities signatures_probabilities.txt --output_dir /path/to/output/dir
 ```
 
-Example cancersig profile of [sample1](./example/example_sample1_cancersig_profile.pdf),[sample2](./example/example_sample2_cancersig_profile.pdf),[sample3](./example/example_sample3_cancersig_profile.pdf),[sample4](./example/example_sample4_cancersig_profile.pdf) from input [mutation_profile](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/exp_merged_feature.txt) and [signatures_probabilities](./example/output_deciphered_2_processes.txt)
+Example cancersig profile of [sample1](./example/example_sample1_cancersig_profile.pdf),[sample2](./example/example_sample2_cancersig_profile.pdf),[sample3](./example/example_sample3_cancersig_profile.pdf),[sample4](./example/example_sample4_cancersig_profile.pdf), and [normalized_weights](./cancersig/signature/test/data/visualize/Visualizer/test_visualize_1/exp_weights) from input [mutation_profile](./cancersig/profile/test/data/profile_merger/ProfileMerger/test_merge_1/exp_merged_feature.txt) and [signatures_probabilities](./example/output_deciphered_2_processes.txt)
 
 ## Contact
 
