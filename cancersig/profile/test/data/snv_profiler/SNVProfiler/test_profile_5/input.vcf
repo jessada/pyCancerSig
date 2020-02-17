@@ -1,0 +1,7 @@
+##fileformat=VCFv4.2
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sample1	sample2
+1	1249187	.	G	A	.	.	.	GT	0/1	0/0
+2	47672720	.	T	C	.	.	.	GT	0/1	0/0
+3	37067391	.	C	A	.	.	.	GT	0/1	0/1
+12	133225960	.	T	C	.	.	.	GT	0/1	0/1
+M	425960	.	T	C	.	.	.	GT	0/1	0/1

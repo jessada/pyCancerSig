@@ -20,7 +20,6 @@ def app_profile_snv(*args, **kwargs):
     ref_genome_file = kwargs['ref_genome_file']
     output_file = kwargs['output_file']
     gt_format = kwargs['gt_format']
-    sample_id = kwargs['sample_id']
 
     disp.new_section_txt("S T A R T < " + app_name + " >")
     required_params = OrderedDict()
@@ -28,7 +27,6 @@ def app_profile_snv(*args, **kwargs):
     required_params['reference genome (-r/--reference)'] = ref_genome_file
     required_params['output file name (-o/--output_file)'] = output_file
     optional_params = OrderedDict()
-    optional_params['sample id (--sample_id)'] = sample_id
     optional_params['genotype format (-g/--gt_format)'] = gt_format
     disp.show_config(app_description=APP_PROFILE_SNV_DESCRIPTION,
                      required_params=required_params,
@@ -40,7 +38,6 @@ def app_profile_snv(*args, **kwargs):
                          ref_genome_file,
                          output_file,
                          gt_format,
-                         sample_id,
                          )
     logger.getLogger(__name__)
     disp.new_section_txt("F I N I S H < " + app_name + " >")
@@ -51,14 +48,12 @@ def app_profile_sv(*args, **kwargs):
 
     input_vcf_file = kwargs['input_vcf_file']
     output_file = kwargs['output_file']
-    sample_id = kwargs['sample_id']
 
     disp.new_section_txt("S T A R T < " + app_name + " >")
     required_params = OrderedDict()
     required_params['input vcf file name (-i/--input_vcf_file)'] = input_vcf_file
     required_params['output file name (-o/--output_file)'] = output_file
     optional_params = OrderedDict()
-    optional_params['sample id (--sample_id)'] = sample_id
     disp.show_config(app_description=APP_PROFILE_SV_DESCRIPTION,
                      required_params=required_params,
                      optional_params=optional_params,
@@ -67,7 +62,6 @@ def app_profile_sv(*args, **kwargs):
     sv_profiler = SVProfiler()
     sv_profiler.profile(input_vcf_file,
                         output_file,
-                        sample_id,
                         )
     logger.getLogger(__name__)
     disp.new_section_txt("F I N I S H < " + app_name + " >")

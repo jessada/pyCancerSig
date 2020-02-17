@@ -10,6 +10,7 @@ Dependencies - Currently, feature extraction of structural variants was based on
 - [MSIsensor](https://github.com/ding-lab/msisensor)
 - [samtools](https://samtools.github.io) - used by `cancersig profie snv` for identifying 5' and 3' bases
 - [vt](https://genome.sph.umich.edu/wiki/Vt) - used by `cancersig profile snv`
+- [VCFtools](https://vcftools.github.io/perl_module.html) - used by `cancersig profile snv`
 
 Install the dependencies, then download and install pyCancerSig
 
@@ -92,14 +93,12 @@ visualize           visualize mutational signatures identified in tumors
 -i {file}           input VCF file (required)
 -r {file}           path to genome reference (required)
 -o {file}           output snv feature file (required)
---sample_id {id}    a sample id to be used as a column header in the output file (This will replace sample id from vcf header) (optional)
 ```
 
 `cancersig profile sv` [options]:
 ```
 -i {file}           input VCF file (required)
 -o {file}           output sv feature file (required)
---sample_id {id}    a sample id to be used as a column header in the output file (This will replace sample id from vcf header) (optional)
 ```
 
 `cancersig profile msi` [options]:

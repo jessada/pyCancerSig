@@ -79,13 +79,6 @@ arg_profile_snv_subcommand.add_argument('-g',
                                         help='genotype format (default="GTR")',
                                         default="GTR",
                                         )
-arg_profile_snv_subcommand.add_argument('--sample_id',
-                                        dest='profile_snv_sample_id',
-                                        metavar="{ID}",
-                                        help='a sample id to be used as a column header in the output file (This will replace sample id from vcf header)',
-                                        default=None,
-                                        )
-
 
 # ******************************************** cancersig profile sv **********************************************************
 arg_profile_sv_subcommand = arg_profile_command_subp.add_parser('sv',
@@ -106,13 +99,6 @@ arg_profile_sv_required_group.add_argument('-o',
                                            help='an output sv feature file',
                                            required=True,
                                            )
-arg_profile_sv_subcommand.add_argument('--sample_id',
-                                       dest='profile_sv_sample_id',
-                                       metavar="{ID}",
-                                       help='a sample id to be used as a column header in the output file (This will replace sample id from vcf header)',
-                                       default=None,
-                                       )
-
 
 # ******************************************** cancersig profile msi **********************************************************
 arg_profile_msi_subcommand = arg_profile_command_subp.add_parser('msi',
@@ -253,12 +239,10 @@ if args.command_action == "profile":
                         ref_genome_file=args.profile_snv_ref_genome_file,
                         output_file=args.profile_snv_output_file,
                         gt_format=args.profile_snv_gt_format,
-                        sample_id=args.profile_snv_sample_id,
                         )
     elif args.profile_action == "sv":
         app_profile_sv(input_vcf_file=args.profile_sv_input_vcf_file,
                        output_file=args.profile_sv_output_file,
-                       sample_id=args.profile_sv_sample_id,
                        )
     elif args.profile_action == "msi":
         app_profile_msi(raw_msisensor_out=args.profile_msi_raw_msisensor_out,

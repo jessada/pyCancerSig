@@ -1,5 +1,9 @@
 import copy
+import sys
+import re
 from os.path import join as join_path
+from tempfile import mkdtemp
+from pyfaidx import Faidx
 from cancersig.config import CANCERSIG_SCRIPTS_DIR
 from cancersig.utils import exec_sh
 from cancersig.template import pyCancerSigBase
@@ -17,61 +21,96 @@ class SNVProfiler(pyCancerSigBase):
     def __init__(self, *args, **kwargs):
         super(SNVProfiler, self).__init__(*args, **kwargs)
 
-    def __count_snv_events(self,
-                           input_vcf_file,
-                           ref_genome_file,
-                           output_event_file,
-                           gt_format="GTR",
-                           sample_id=None,
-                           ):
-        self.info("counting SNV events and saving them to " + output_event_file)
-        cmd = SCRIPT_COUNT_SNV_EVENTS
-        cmd +=" -i " + input_vcf_file
-        cmd +=" -r " + ref_genome_file
-        cmd +=" -o " + output_event_file
-        cmd +=" -g " + gt_format
-        p, stdout_data = exec_sh(cmd, silent=True)
-
-    def __event_to_profile(self,
-                           input_event_file,
-                           output_file,
-                           sample_id,
-                           ):
-        features_count = copy.deepcopy(SNV_FEATURES_TEMPLATE)
-        with open(input_event_file) as f_i:
-            for line in f_i:
-                if line[0] == "#":
-                    if sample_id is None:
-                        sample_id = line.strip().split("\t")[5]
-                    continue
-                dummy, dummy, ref, alt, triplet, dummy = line.strip().split("\t")
-                feature_id = SNV_FEATURES_HASH[ref][alt][triplet]
-                features_count[feature_id][FEATURE_QUANTITY] += 1
-        with open(output_file, "w") as f_o:
-            header = VARIANT_TYPE
-            header += "\t" + VARIANT_SUBGROUP
-            header += "\t" + FEATURE_ID
-            header += "\t" + sample_id
-            f_o.write(header+"\n")
-            for feature_id in features_count:
-                f_o.write("{:s}\t{:s}\t{:s}\t{:d}\n".format(features_count[feature_id][VARIANT_TYPE],
-                                                            features_count[feature_id][VARIANT_SUBGROUP],
-                                                            feature_id,
-                                                            features_count[feature_id][FEATURE_QUANTITY],
-                                                            ))
     def profile(self,
                 input_vcf_file,
                 ref_genome_file,
                 output_file,
-                gt_format="GTR",
+                raw_gt_format="GTR",
                 sample_id=None,
                 ):
-        event_file = output_file + ".event"
-        self.__count_snv_events(input_vcf_file,
-                                  ref_genome_file,
-                                  event_file,
-                                  gt_format,
-                                  sample_id,
-                                  )
-        self.__event_to_profile(event_file, output_file, sample_id)
+        # unzip decompose and  clean vcf file
+        clean_vcf_file = join_path(mkdtemp(), "clean.vcf")
+        if input_vcf_file.endswith(".gz"):
+            cmd = "gunzip -c " + input_vcf_file
+        else:
+            cmd = "cat " + input_vcf_file
+        cmd += " | vt decompose -s -"
+        cmd += " | grep -Pv \"\t\*\t\""
+        cmd += " | grep -v \"\\x3b\""
+        cmd += " | grep -v \"^M\""
+        cmd += " > " + clean_vcf_file
+        p, stdout_data = exec_sh(cmd, silent=True)
 
+        # parse the clean vcf file for the required fields
+        vcf_query_format = "'"
+        vcf_query_format += "%CHROM"
+        vcf_query_format += "\t%POS"
+        vcf_query_format += "\t%REF"
+        vcf_query_format += "\t%ALT"
+        vcf_query_format += "[\t%SAMPLE=%" + raw_gt_format + "]"
+        vcf_query_format += "\n"
+        vcf_query_format += "'"
+        cmd = "vcf-query"
+        cmd += " -f " + vcf_query_format
+        cmd += " " + clean_vcf_file
+        p, stdout_data = exec_sh(cmd, silent=True)
+
+        # get list of smaple id and prepare data structure
+        first_variant_record = stdout_data.decode('utf-8').split("\n")[0]
+        variant_items = first_variant_record.strip().split("\t")
+        samples_features = {}
+        for sample_idx in range(4, len(variant_items)):
+            gt_data = variant_items[sample_idx] 
+            m = re.match(r"(?P<sample_id>.*)=(?P<raw_gt>.*)", gt_data)
+            sample_id = m.group("sample_id")
+            samples_features[sample_id] = copy.deepcopy(SNV_FEATURES_TEMPLATE)
+
+        # iterate over all vcf record and count variants for each sample
+        fa = Faidx(ref_genome_file)
+        for variant_record in stdout_data.decode('utf-8').split("\n"):
+            variant_items = variant_record.strip().split("\t")
+            if len(variant_items) < 4:
+                continue
+            chrom = variant_items[0]
+            pos = variant_items[1]
+            ref = variant_items[2]
+            alt = variant_items[3]
+            if len(ref) > 1:
+                continue
+            if ref == "-":
+                continue
+            if len(alt) > 1:
+                continue
+            if alt == "-":
+                continue
+            triplet = fa.fetch(chrom, int(pos)-1, int(pos)+1).seq
+            feature_id = SNV_FEATURES_HASH[ref][alt][triplet]
+            # iterate over all samples in the record
+            for sample_idx in range(4, len(variant_items)):
+                gt_data = variant_items[sample_idx] 
+                m = re.match(r"(?P<sample_id>.*)=(?P<raw_gt>.*)", gt_data)
+                raw_gt = m.group("raw_gt")
+                if raw_gt == "0/0":
+                    continue
+                samples_features[m.group("sample_id")][feature_id][FEATURE_QUANTITY] += 1
+        fa.close()
+
+        # write output feature file
+        with open(output_file, "w") as f_o:
+            header = VARIANT_TYPE
+            header += "\t" + VARIANT_SUBGROUP
+            header += "\t" + FEATURE_ID
+            for sample_id in samples_features:
+                header += "\t" + sample_id
+            f_o.write(header+"\n")
+            for feature_id in SNV_FEATURES_TEMPLATE:
+                feature_info =  "{:s}\t{:s}\t{:s}".format(SNV_FEATURES_TEMPLATE[feature_id][VARIANT_TYPE],
+                                                          SNV_FEATURES_TEMPLATE[feature_id][VARIANT_SUBGROUP],
+                                                          feature_id,
+                                                          )
+                for sample_id in samples_features:
+                    feature_info += "\t" + str(samples_features[sample_id][feature_id][FEATURE_QUANTITY])
+                f_o.write(feature_info + "\n")
+
+        self.info()
+        self.info("Done!! The output file is at " + output_file)
