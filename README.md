@@ -164,7 +164,7 @@ cancersig profile snv -i input.vcf.gz -r /path/to/reference.fa -o snv_feature.tx
 
 `cancersig profile sv` will
 - check INFO field "SVTYPE" to determine type of structural variation
-- check INFO field "SVLEN" for length of the event
+- check INFO field "END" for calculating the length of the event
 - then, perform SV profiling of the sample by counting number of SVs in each category and divide it by total number of variants in the sample.
 
 The sample id in the output feature file will be the same as sample id in the input VCF file (column 10).
@@ -244,7 +244,7 @@ Example cancersig profile of [sample1](./example/example_sample1_cancersig_profi
 
 ## Runtime estimation
 
-The amount of time needed for processing variants may depend on size of data and configuration of the machine. The following performance was based on execution on our computational clusters.
+The amount of time needed for processing variants may depend on size of data and configuration of the machine. The following performance was based on execution the Uppsala Multidisciplinary Center for Advanced Computational Science  computational cluster “bianca”, on a single Intel Xeon E5-2630 v3 core with 8 Gb RAM allocated.
 
 - `cancersig profile snv` can process 3523 variants/second
 - `cancersig profile sv` can process 17550 variants/second
